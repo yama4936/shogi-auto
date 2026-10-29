@@ -99,6 +99,11 @@ PyTorchとNumPyは別途必要です。通常の対局UIやテストにCUDAを�
 Kaggle用 `notebooks/kaggle_learning_v1.ipynb` は、GPU上でモデルを実際に更新し、固定CPU版と学習前モデルに対局させるためのNotebookです。
 既存のGPU smoke Notebookとは別で、学習が動いたこと・損失が減ったこと・棋力が上がったことをそれぞれ区別します。
 
+前回の線形モデルでは棋力向上を確認できませんでした。再実験の方策・価値CNNは
+[設計と利用条件](docs/learning-policy-v2-plan.md)、[Kaggle実行・結果返却手順](docs/learning-policy-v2-handoff.md)を参照してください。
+`notebooks/kaggle_policy_v2.ipynb`は承認済みの自己生成データを同梱し、GPU学習だけを最大1時間で行います。
+教師生成と256局の比較はCPUで別に行い、学習前後と強い固定教師の結果を区別します。
+
 ## 次の開発段階
 1. 固定対局条件で現在のCPU AIの棋力を測り、詰み探索・評価関数を改善する。
 2. 持将棋・入玉宣言などのルールと、対局保存・読み込みを追加する。

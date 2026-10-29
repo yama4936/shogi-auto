@@ -1,0 +1,88 @@
+{
+  "status": "ready_for_parent_kaggle_training",
+  "gpu_training_executed": false,
+  "strength_verified": false,
+  "source_commit": "a4854e6f48d3ea22ee2504b5405f9921668c14fb",
+  "source_sha256": "e1a2940b8c07e32fcd906afe93c46cb265cbc89dc1c6b5ba56dde4787fefe5fb",
+  "source_zip_sha256": "b52427e7dc55a7515dd4c4f9111bf4eca0091a02e36ccc6d9ed6327cd4f1ff7d",
+  "inputs": {
+    "path": "outputs/policy-v2-gpu-inputs.zip",
+    "bytes": 705352,
+    "sha256": "3c0dbbe0743ee2e2e6bb8bac4305c4c300223c891f3fbb830c0280338c11299a",
+    "counts": {
+      "train": 3804,
+      "validation": 515,
+      "test": 484
+    },
+    "inner": {
+      "data.npz": "7be04d753bd5b4cb39fee474b1f8db33e07ee787e5b97a277558456ab7109af1",
+      "data-manifest.json": "445ac9d1b1accfa1b9078de4bdfd1384ec588a5fb3fbf7dd4273e12b64def045"
+    }
+  },
+  "teacher_orientation": [
+    {
+      "sfen": "4k4/9/9/9/9/9/9/9/4K4 b R 1",
+      "expected_sign": 1,
+      "score_kind": "mate",
+      "score": 9,
+      "depth": 19,
+      "nodes": 32788,
+      "usi": "R*2b",
+      "seconds": 0.023098248000678723
+    },
+    {
+      "sfen": "4k4/9/9/9/9/9/9/9/4K4 w r 1",
+      "expected_sign": 1,
+      "score_kind": "cp",
+      "score": 3186,
+      "depth": 14,
+      "nodes": 32802,
+      "usi": "R*2h",
+      "seconds": 0.024570607998612104
+    },
+    {
+      "sfen": "4k4/9/9/9/9/9/9/9/4K4 b r 1",
+      "expected_sign": -1,
+      "score_kind": "mate",
+      "score": -20,
+      "depth": 18,
+      "nodes": 32810,
+      "usi": "5i4h",
+      "seconds": 0.023822496999855503
+    },
+    {
+      "sfen": "4k4/9/9/9/9/9/9/9/4K4 w R 1",
+      "expected_sign": -1,
+      "score_kind": "cp",
+      "score": -2586,
+      "depth": 15,
+      "nodes": 32801,
+      "usi": "5a4b",
+      "seconds": 0.025555910000548465
+    }
+  ],
+  "tests": {
+    "ran": 42,
+    "passed": 42,
+    "skipped": 0
+  },
+  "cpu_data_wall_seconds": 459.8526180450008,
+  "gpu_wall_upper_seconds": 3515,
+  "planned_cpu_arena_games": 256,
+  "data_generator_commit": "78540c56f0796f0d969824cc1bff0980bed1d419",
+  "teacher_source": {
+    "url": "https://github.com/yaneurao/YaneuraOu/tree/v8.60git",
+    "commit": "eb2856f91e6088e5b8c1216e3d84d0563f7cd85f",
+    "license": "GPL-3.0"
+  },
+  "teacher_weights": {
+    "url": "https://github.com/nodchip/tanuki-/releases/tag/tanuki-.halfkp_256x2-32-32.2023-05-08",
+    "sha256": "1141d275bceec911156801f27303dc9ff5beb24f4f59144cc069306c59e80782",
+    "license": "GPL-3.0 included in weights-only archive"
+  },
+  "notes": [
+    "Self-generated arrays only; no external game records or teacher parameters embedded",
+    "GPU session startup/shutdown allocation is not included in process watchdog",
+    "CPU functional tests are not GPU or strength evidence"
+  ]
+}
