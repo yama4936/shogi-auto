@@ -51,23 +51,23 @@ class SearchStopped(Exception):
     pass
 
 
-def choose_move(board, seconds=0.35, max_depth=3, max_nodes=6000, stop=None):
+def choose_move(board, seconds=0.35, max_depth=3, max_nodes=6000, stop=None, evaluator=None):
     """Search an isolated copy and always return a legal fallback on timeout.
 
     The deadline is cooperative at node boundaries (not a hard real-time limit).
     Repetition in search is scored as a draw; the game adjudicates checking cycles.
     """
-    return _search(copy.deepcopy(board), seconds, max_depth, max_nodes, stop)
+    return _search(copy.deepcopy(board), seconds, max_depth, max_nodes, stop, evaluator or evaluate)
 
 
-def _search(board, seconds, max_depth, max_nodes, stop):
+def _search(board, seconds, max_depth, max_nodes, stop, evaluator):
     stop = stop if stop is not None else threading.Event()
     deadline = time.monotonic() + max(0.001, min(seconds, 2.0))
     nodes = 0
     moves = ordered_moves(board)
     if not moves:
         return SearchResult(None, 0, 0, -MATE)
-    best = SearchResult(moves[0], 0, 0, evaluate(board))
+    best = SearchResult(moves[0], 0, 0, evaluator(board))
 
     def check_budget():
         if nodes >= max_nodes or stop.is_set() or time.monotonic() >= deadline:
@@ -83,7 +83,7 @@ def _search(board, seconds, max_depth, max_nodes, stop):
         if not legal:
             return -MATE + ply
         if depth == 0:
-            return evaluate(board)
+            return evaluator(board)
         value = -MATE
         for move in legal:
             board.push(move)

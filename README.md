@@ -91,6 +91,14 @@ Kaggle では既存の PyTorch / CUDA を使い、setup スクリプトから再
 この Notebook は外部データや API キー不要で CUDA 上の行列演算を確認します。
 **Notebook を作っただけでは GPU 利用可能とは言えません。実際の CUDA テスト成功が必要です。**
 
+## 学習と学習前後の対局評価
+
+初回の小規模な教師あり学習実験は [学習計画と比較条件](docs/learning-plan.md) を参照してください。
+任意の学習パイプラインは `python -m shogi_auto.learning.run --run-dir runs/learning-v1 --device cpu`。
+PyTorchとNumPyは別途必要です。通常の対局UIやテストにCUDAを要求しません。
+Kaggle用 `notebooks/kaggle_learning_v1.ipynb` は、GPU上でモデルを実際に更新し、固定CPU版と学習前モデルに対局させるためのNotebookです。
+既存のGPU smoke Notebookとは別で、学習が動いたこと・損失が減ったこと・棋力が上がったことをそれぞれ区別します。
+
 ## 次の開発段階
 1. 固定対局条件で現在のCPU AIの棋力を測り、詰み探索・評価関数を改善する。
 2. 持将棋・入玉宣言などのルールと、対局保存・読み込みを追加する。

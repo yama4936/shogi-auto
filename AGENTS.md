@@ -10,3 +10,6 @@
 - Do not submit to tournaments, start paid resources, or publish Kaggle artifacts without authorization.
 - Basic USI and bounded CPU search exist. Full USI clock/ponder support, CSA, training and tournament hosting remain future work.
 - Keep the web UI local by default. Test browser behavior with the optional `scripts/browser_smoke.py`; never expose arbitrary SFEN fixtures through the public API.
+- Optional supervised-learning experiments live in `shogi_auto.learning`; see `docs/learning-plan.md`. They are not reinforcement learning or tournament-ready engines.
+- Never silently install/upgrade Kaggle's PyTorch or CUDA. The offline learning Notebook bundles only reviewed public source and no datasets or weights.
+- Preserve train/validation/test separation, paired opening comparisons, time budgets, checkpoints and honest negative results. Do not select models using the held-out arena outcomes.

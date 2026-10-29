@@ -16,3 +16,9 @@
 
 再配布時は依存ライブラリのライセンス条件を確認してください。
 棋譜データ・学習済み重み・外部エンジン・画像・外部フォントは追加していません。
+
+学習用の任意依存は NumPy（BSD-3-Clause）と PyTorch（BSD形式、同梱部分の条件は各配布物を参照）。
+[NumPyライセンス](https://github.com/numpy/numpy/blob/main/LICENSE.txt)、[PyTorchライセンス](https://github.com/pytorch/pytorch/blob/main/LICENSE)。
+CPU検証では NumPy 2.3.5 / PyTorch 2.11.0+cpu を使用。Kaggleでは既存版を再利用し、更新しません。
+オフライン学習Notebookは、公開済みの本リポジトリの学習コードと python-shogi 1.1.1 の `.py` ソース・GPL原文だけを同梱します。
+第三者のモデル・棋譜・データ・バイナリ実行ファイルは同梱しません。cshogiは依存関係の比較のみで、採用していません。
