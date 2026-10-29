@@ -1,0 +1,305 @@
+{
+  "status": "evaluated",
+  "kind": "CPU reevaluation only; no training or GPU launch",
+  "input_zip_sha256": "a5e33d80cfa2f415266ec7028a4cc8f9885e08aa0b28fadd6ff48369587ccefb",
+  "input_zip_bytes": 51624,
+  "model_selection": "GPU validation-selected epoch 18; weights unchanged",
+  "source": {
+    "commit": "2f489fe4d51a3a1bb3cbe919fdf1f9d423e6d3e4",
+    "source_sha256": "050be4bbc3f75d53f99bc3e19cb258de93569deebe8848dd5eafab9e7fd043c0",
+    "dirty": false,
+    "offline_bundle": false
+  },
+  "models_sha256": {
+    "initial": "48e22765bf92a8a9ee76bf1df2e4001ce139d848879c538cb90cc28496531cca",
+    "candidate": "9d6818edfffe444415ecf891b3b2f4228ea076c37993b4044dca579b976557d3"
+  },
+  "settings": {
+    "arena_seed": 20261103,
+    "arena_pairs": 32,
+    "move_seconds": 0.05,
+    "arena_max_plies": 256
+  },
+  "comparisons": {
+    "frozen-material": {
+      "games": 64,
+      "complete_pairs": 32,
+      "expected_pairs": 32,
+      "wins": 26,
+      "losses": 16,
+      "draws": 22,
+      "mean_score": 0.578125,
+      "score_95pct_pair_bootstrap": [
+        0.484375,
+        0.671875
+      ],
+      "reason_counts": {
+        "move_limit": 18,
+        "千日手": 4,
+        "詰み": 42
+      },
+      "score_95pct_hoeffding_bound": [
+        0.3380443021700198,
+        0.8182056978299802
+      ],
+      "illegal_moves": 0,
+      "time_forfeits": 0,
+      "abnormal_terminations": 0,
+      "move_limit_games": 18,
+      "complete": true,
+      "improvement_evidence": false,
+      "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+    },
+    "initial-model": {
+      "games": 64,
+      "complete_pairs": 32,
+      "expected_pairs": 32,
+      "wins": 17,
+      "losses": 30,
+      "draws": 17,
+      "mean_score": 0.3984375,
+      "score_95pct_pair_bootstrap": [
+        0.296875,
+        0.5
+      ],
+      "reason_counts": {
+        "詰み": 47,
+        "move_limit": 16,
+        "千日手": 1
+      },
+      "score_95pct_hoeffding_bound": [
+        0.15835680217001982,
+        0.6385181978299802
+      ],
+      "illegal_moves": 0,
+      "time_forfeits": 0,
+      "abnormal_terminations": 0,
+      "move_limit_games": 16,
+      "complete": true,
+      "improvement_evidence": false,
+      "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+    }
+  },
+  "diagnostics": {
+    "frozen-material": {
+      "turns_candidate_opponent": [
+        5337,
+        5328
+      ],
+      "mean_completed_depth_per_turn_candidate_opponent": [
+        1.1755667978264943,
+        1.2021396396396395
+      ],
+      "total_nodes_candidate_opponent": [
+        2122083,
+        2460054
+      ],
+      "zero_evaluated_fallback_turns_candidate_opponent": [
+        0,
+        0
+      ],
+      "mean_think_seconds_per_turn_candidate_opponent": [
+        0.05117941674031201,
+        0.05109667342886413
+      ],
+      "max_think_seconds_candidate_opponent": [
+        0.06058410999867192,
+        0.07770738300132507
+      ],
+      "mean_last_iteration_root_coverage_candidate_opponent": [
+        0.11164187496099333,
+        0.12935705840923326
+      ],
+      "mean_plies": 166.640625
+    },
+    "initial-model": {
+      "turns_candidate_opponent": [
+        5184,
+        5191
+      ],
+      "mean_completed_depth_per_turn_candidate_opponent": [
+        1.3040123456790123,
+        1.2799075322673859
+      ],
+      "total_nodes_candidate_opponent": [
+        2153483,
+        2166683
+      ],
+      "zero_evaluated_fallback_turns_candidate_opponent": [
+        0,
+        0
+      ],
+      "mean_think_seconds_per_turn_candidate_opponent": [
+        0.05106015606962637,
+        0.05092576655521144
+      ],
+      "max_think_seconds_candidate_opponent": [
+        0.061352729999271105,
+        0.07855959100015752
+      ],
+      "mean_last_iteration_root_coverage_candidate_opponent": [
+        0.10712930867025186,
+        0.11579008864893624
+      ],
+      "mean_plies": 162.109375
+    }
+  },
+  "reason_counts": {
+    "move_limit": 34,
+    "千日手": 5,
+    "詰み": 89
+  },
+  "improvement_evidence": false,
+  "verification": {
+    "all_128_games_replayed_legally": true,
+    "32_disjoint_paired_openings_shared_across_opponents": true,
+    "model_bytes_unchanged": true,
+    "source_dataset_reconstructed_and_matched_npz": true
+  },
+  "data_diagnosis": {
+    "counts": {
+      "requested": 640,
+      "available_before_teacher": 628,
+      "accepted_before_dedup": 125,
+      "clipped_labels": 46,
+      "selected_not_reached": 12,
+      "teacher_rejected": 503,
+      "final_rows": 125
+    },
+    "trajectory_outcomes": {
+      "trajectory_max_plies": 147,
+      "詰み": 13
+    },
+    "teacher_depth_counts_before_dedup": {
+      "2": 125
+    },
+    "accepted_per_game_histogram": {
+      "1": 67,
+      "0": 66,
+      "2": 23,
+      "3": 4
+    },
+    "training_active_features": 296,
+    "features": 1141,
+    "train_rows": 97,
+    "dataset_exactly_reconstructed": true,
+    "corpus_sha256": "d1daf586ba8853d7f9b9e2550a1cf352c3be849d488fa2e1e22d8fa29f080cb9",
+    "models_sha256": {
+      "initial-model.json": "48e22765bf92a8a9ee76bf1df2e4001ce139d848879c538cb90cc28496531cca",
+      "best-model.json": "9d6818edfffe444415ecf891b3b2f4228ea076c37993b4044dca579b976557d3"
+    },
+    "weight_l2_change": 0.29480790335884116,
+    "unrecorded_rejection_reason": "Original logs do not distinguish incomplete depth from mate-score exclusion."
+  },
+  "inference_diagnosis": {
+    "v1_low_depth_games_replayed_legally": [
+      {
+        "game_id": "frozen-material:13:0",
+        "mean_depth": [
+          0.0,
+          0.0
+        ],
+        "total_nodes": [
+          149,
+          123
+        ],
+        "timing_seconds": [
+          {
+            "mean": 0.05652792809804155,
+            "max": 0.08311206899998069
+          },
+          {
+            "mean": 0.05940433361999567,
+            "max": 0.07591336899986345
+          }
+        ]
+      },
+      {
+        "game_id": "frozen-material:1:0",
+        "mean_depth": [
+          0.0,
+          0.0
+        ],
+        "total_nodes": [
+          159,
+          141
+        ],
+        "timing_seconds": [
+          {
+            "mean": 0.05926349751785714,
+            "max": 0.07788436099986029
+          },
+          {
+            "mean": 0.059987138089309965,
+            "max": 0.08100758000000496
+          }
+        ]
+      },
+      {
+        "game_id": "frozen-material:1:1",
+        "mean_depth": [
+          0.0,
+          0.0
+        ],
+        "total_nodes": [
+          138,
+          161
+        ],
+        "timing_seconds": [
+          {
+            "mean": 0.0592734612857149,
+            "max": 0.07995165500005896
+          },
+          {
+            "mean": 0.0592251272143106,
+            "max": 0.0834541189999527
+          }
+        ]
+      }
+    ],
+    "prediction_only_metrics": {
+      "initial-model.json": {
+        "train": {
+          "raw_mse": 0.1991731977972244,
+          "clamped_mse": 0.1991731977972244
+        },
+        "validation": {
+          "raw_mse": 0.147578853112635,
+          "clamped_mse": 0.147578853112635
+        },
+        "test": {
+          "raw_mse": 0.10134538371685643,
+          "clamped_mse": 0.10134538371685643
+        }
+      },
+      "best-model.json": {
+        "train": {
+          "raw_mse": 0.12690123088927432,
+          "clamped_mse": 0.12690123088927432
+        },
+        "validation": {
+          "raw_mse": 0.1312134171779358,
+          "clamped_mse": 0.1312134171779358
+        },
+        "test": {
+          "raw_mse": 0.08571192295872339,
+          "clamped_mse": 0.08571192295872339
+        }
+      },
+      "frozen_zero_residual": {
+        "train": 0.19571331143379211,
+        "validation": 0.14507809281349182,
+        "test": 0.1102968156337738
+      }
+    },
+    "feature_inference_and_turn_sign_match": true
+  },
+  "budget": {
+    "used_wall_seconds": 546.2620335709998,
+    "limit_wall_seconds": 1800.0,
+    "visible_gpus": 0,
+    "estimated_allocation_gpu_hours": 0.0,
+    "quota_remaining": "must be checked in Kaggle UI; not inferred from CUDA"
+  },
+  "arena_report_sha256": "9befc3369b106301c4dbc48bd834ce013bb7718aea002e4fa8b4a8fe733986d7"
+}
