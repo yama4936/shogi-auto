@@ -11,6 +11,7 @@
 - Basic USI and bounded CPU search exist. Full USI clock/ponder support, CSA, training and tournament hosting remain future work.
 - Keep the web UI local by default. Test browser behavior with the optional `scripts/browser_smoke.py`; never expose arbitrary SFEN fixtures through the public API.
 - Optional supervised-learning experiments live in `shogi_auto.learning`; see `docs/learning-plan.md`. They are not reinforcement learning or tournament-ready engines.
-- Never silently install/upgrade Kaggle's PyTorch or CUDA. The offline learning Notebook bundles only reviewed public source and no datasets or weights.
+- Never silently install/upgrade Kaggle's PyTorch or CUDA. The v1 offline learning Notebook bundles only reviewed public source and no datasets or weights; the explicit policy-v2 exception below is limited to approved self-generated arrays.
 - Preserve train/validation/test separation, paired opening comparisons, time budgets, checkpoints and honest negative results. Do not select models using the held-out arena outcomes.
 - The experimental policy/value path is `shogi_auto.policy`; see `docs/learning-policy-v2-plan.md`. Its optional CPU teacher is built from pinned official GPL source. Keep teacher generation and arena separate from the GPU training-only Notebook, with its one-hour upper bound.
+- Narrow user-authorized exception (2026-10-30): the policy-v2 Notebook may embed the approved self-generated board features, legal policy labels, teacher scores and provenance, up to 2 MB compressed. No third-party weights/binaries, external game records or private user information may be embedded. All other dataset/checkpoint exclusions remain in force.

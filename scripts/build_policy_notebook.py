@@ -1,7 +1,8 @@
 """Build a source-pinned, offline, training-only Kaggle Notebook.
 
-Run after committing the policy implementation and producing the private CPU
-data archive. Neither third-party weights nor generated data enter this file.
+Run after committing the implementation and producing the CPU data archive.
+Only explicitly approved self-generated arrays may be embedded; teacher
+weights and executable binaries are always excluded.
 """
 import argparse
 import base64
@@ -17,11 +18,20 @@ from shogi_auto.policy.common import source_files, source_identity
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def build(output, data_sha):
+def build(output, data_sha, embed_data=None):
     if len(data_sha)!=64 or any(c not in '0123456789abcdef' for c in data_sha):
         raise ValueError('Supply the actual private CPU data archive SHA256')
     origin=source_identity()
     if origin['dirty']:raise ValueError('Commit the code first; production bundles require a clean tree')
+    data_encoded=None
+    if embed_data is not None:
+        data_raw=Path(embed_data).read_bytes()
+        if len(data_raw)>2_000_000 or hashlib.sha256(data_raw).hexdigest()!=data_sha:
+            raise ValueError('Embedded self-generated data exceeds the approved size bound or SHA differs')
+        with zipfile.ZipFile(io.BytesIO(data_raw)) as z:
+            if set(z.namelist())!={'data.npz','data-manifest.json','SHA256SUMS.json'}:
+                raise ValueError('Only the approved self-generated arrays and provenance may be embedded')
+        data_encoded=base64.b64encode(data_raw).decode()
     origin={**origin,'offline_bundle':True}
     memory=io.BytesIO()
     with zipfile.ZipFile(memory,'w',zipfile.ZIP_DEFLATED) as z:
@@ -57,12 +67,15 @@ with zipfile.ZipFile(io.BytesIO(raw)) as z:
     z.extractall(code_dir)
 origin=json.loads((code_dir/'SOURCE_POLICY.json').read_text())
 assert origin['commit']==PINNED_CODE_COMMIT
-archives=list(pathlib.Path('/kaggle/input').glob('**/policy-v2-gpu-inputs.zip'))
-if len(archives)!=1:raise RuntimeError('Attach exactly one private policy-v2-gpu-inputs.zip CPU output')
-archive=archives[0]
-if hashlib.sha256(archive.read_bytes()).hexdigest()!=DATA_ZIP_SHA256:raise ValueError('Private CPU data archive checksum mismatch')
+if DATA_BASE64 is not None:
+    data_raw=base64.b64decode(DATA_BASE64,validate=True)
+else:
+    archives=list(pathlib.Path('/kaggle/input').glob('**/policy-v2-gpu-inputs.zip'))
+    if len(archives)!=1:raise RuntimeError('Attach exactly one private policy-v2-gpu-inputs.zip CPU output')
+    data_raw=archives[0].read_bytes()
+if hashlib.sha256(data_raw).hexdigest()!=DATA_ZIP_SHA256:raise ValueError('CPU data archive checksum mismatch')
 data_dir=pathlib.Path('/kaggle/working/shogi-policy-v2-data');data_dir.mkdir(exist_ok=True)
-with zipfile.ZipFile(archive) as z:
+with zipfile.ZipFile(io.BytesIO(data_raw)) as z:
     allowed={'data.npz','data-manifest.json','SHA256SUMS.json'}
     if set(z.namelist())!=allowed or sum(e.file_size for e in z.infolist())>200_000_000:
         raise ValueError('Unexpected private dataset archive')
@@ -93,17 +106,41 @@ result={'status':training.get('status','failed'),'exit_code':process.returncode,
         'strength_improvement_verified':False,'cpu_arena_pending':True,
         'note':'Save private outputs and switch the session OFF immediately; this Notebook does no CPU arena or teacher generation.'}
 if process.returncode!=0:result['status']='failed'
+result['estimated_allocation_gpu_hours']=result['wall_seconds']*visible/3600
 (destination/'run-report.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps(result,ensure_ascii=False,indent=2))
 print(log.read_text()[-5000:])
+# Text output can be read through Library's native text route if signed binary
+# transfers are unavailable in the separate CPU environment.
+names=['initial-policy.json','best-policy.json','training-report.json','training-settings.json',
+       'run-report.json','optimizer-accounting.json','training-process.log']
+memory=io.BytesIO()
+with zipfile.ZipFile(memory,'w',zipfile.ZIP_DEFLATED) as z:
+    checks={}
+    for name in names:
+        path=destination/name
+        if path.exists():
+            payload=path.read_bytes();checks[name]=hashlib.sha256(payload).hexdigest();z.writestr(name,payload)
+    z.writestr('SHA256SUMS.json',json.dumps(checks,ensure_ascii=False,indent=2)+'\n')
+payload=memory.getvalue();encoded=base64.b64encode(payload).decode()
+header={'format':'shogi-policy-v2-results-base64zip','zip_bytes':len(payload),
+        'zip_sha256':hashlib.sha256(payload).hexdigest(),'data_zip_sha256':DATA_ZIP_SHA256,
+        'source_commit':PINNED_CODE_COMMIT}
+text=json.dumps(header,ensure_ascii=False)+'\nBEGIN_BASE64\n'+'\n'.join(encoded[i:i+256] for i in range(0,len(encoded),256))+'\nEND_BASE64\n'
+(destination/'policy-v2-return.txt').write_text(text)
+print('CPU return file:',str(destination/'policy-v2-return.txt'))
+print(json.dumps(header,ensure_ascii=False))
 '''
     constants=(f'SOURCE_BASE64={encoded!r}\nSOURCE_ZIP_SHA256={bundle_sha!r}\n'
-               f'PINNED_CODE_COMMIT={origin["commit"]!r}\nDATA_ZIP_SHA256={data_sha!r}\n')
+               f'PINNED_CODE_COMMIT={origin["commit"]!r}\nDATA_ZIP_SHA256={data_sha!r}\n'
+               f'DATA_BASE64={data_encoded!r}\n')
     notebook={'nbformat':4,'nbformat_minor':5,'metadata':{'kernelspec':{'display_name':'Python 3','language':'python','name':'python3'},
-                 'policy_source':origin,'source_zip_sha256':bundle_sha,'private_data_zip_sha256':data_sha},
+                 'policy_source':origin,'source_zip_sha256':bundle_sha,'data_zip_sha256':data_sha,
+                 'data_embedding':'self-generated board features and teacher responses only' if data_encoded else None},
               'cells':[{'cell_type':'markdown','metadata':{},'source':[
                   '# shogi-auto 方策・価値モデル v2（学習のみ）\n',
-                  '非公開・Internet OFF。CPU生成済みの非公開データZIPをInputへ追加してください。\n',
+                  ('非公開・Internet OFF。承認済みの自己生成データを同梱済みです。\n' if data_encoded else
+                   '非公開・Internet OFF。CPU生成済みの非公開データZIPをInputへ追加してください。\n'),
                   '無料GPU残量をUIで確認して下の値を入力。上限は学習3300秒、全体3500秒＋終了猶予15秒。\n',
                   '終了後はOutputを非公開保存し、ただちにセッションOFF。対局評価はCPUで別に行います。\n',
                   '損失低下・CUDA更新だけを棋力向上としません。既存のPyTorch/CUDAは更新しません。\n']},
@@ -112,11 +149,12 @@ print(log.read_text()[-5000:])
     output.parent.mkdir(parents=True,exist_ok=True)
     output.write_text(json.dumps(notebook,ensure_ascii=False,indent=1)+'\n')
     print(json.dumps({'notebook':str(output),'source_commit':origin['commit'],'source_zip_sha256':bundle_sha,
-                      'source_sha256':origin['source_sha256'],'private_data_zip_sha256':data_sha,'bundle_bytes':len(raw)},indent=2))
+                      'source_sha256':origin['source_sha256'],'data_zip_sha256':data_sha,'bundle_bytes':len(raw)},indent=2))
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,default=ROOT/'notebooks/kaggle_policy_v2.ipynb')
     p.add_argument('--data-archive-sha256',required=True)
-    a=p.parse_args();build(a.output,a.data_archive_sha256)
+    p.add_argument('--embed-data-archive',type=Path)
+    a=p.parse_args();build(a.output,a.data_archive_sha256,a.embed_data_archive)

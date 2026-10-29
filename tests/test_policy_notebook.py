@@ -28,7 +28,18 @@ class PolicyNotebookTests(unittest.TestCase):
             values[statement.targets[0].id]=ast.literal_eval(statement.value)
         raw=base64.b64decode(values['SOURCE_BASE64'],validate=True)
         self.assertEqual(hashlib.sha256(raw).hexdigest(),values['SOURCE_ZIP_SHA256'])
-        self.assertEqual(values['DATA_ZIP_SHA256'],notebook['metadata']['private_data_zip_sha256'])
+        self.assertEqual(values['DATA_ZIP_SHA256'],notebook['metadata']['data_zip_sha256'])
+        fifth=ast.parse(code).body[4]
+        self.assertEqual(fifth.targets[0].id,'DATA_BASE64')
+        data_encoded=ast.literal_eval(fifth.value)
+        if data_encoded is not None:
+            data_raw=base64.b64decode(data_encoded,validate=True)
+            self.assertEqual(hashlib.sha256(data_raw).hexdigest(),values['DATA_ZIP_SHA256'])
+            with zipfile.ZipFile(io.BytesIO(data_raw)) as data_bundle:
+                self.assertEqual(set(data_bundle.namelist()),{'data.npz','data-manifest.json','SHA256SUMS.json'})
+                checks=json.loads(data_bundle.read('SHA256SUMS.json'))
+                for name in ('data.npz','data-manifest.json'):
+                    self.assertEqual(hashlib.sha256(data_bundle.read(name)).hexdigest(),checks[name])
         with zipfile.ZipFile(io.BytesIO(raw)) as bundle,tempfile.TemporaryDirectory() as directory:
             origin=json.loads(bundle.read('SOURCE_POLICY.json'))
             self.assertEqual(origin['commit'],values['PINNED_CODE_COMMIT'])
