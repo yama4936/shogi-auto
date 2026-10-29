@@ -13,3 +13,4 @@
 - Optional supervised-learning experiments live in `shogi_auto.learning`; see `docs/learning-plan.md`. They are not reinforcement learning or tournament-ready engines.
 - Never silently install/upgrade Kaggle's PyTorch or CUDA. The offline learning Notebook bundles only reviewed public source and no datasets or weights.
 - Preserve train/validation/test separation, paired opening comparisons, time budgets, checkpoints and honest negative results. Do not select models using the held-out arena outcomes.
+- The experimental policy/value path is `shogi_auto.policy`; see `docs/learning-policy-v2-plan.md`. Its optional CPU teacher is built from pinned official GPL source. Keep teacher generation and arena separate from the GPU training-only Notebook, with its one-hour upper bound.
