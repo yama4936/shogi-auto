@@ -103,6 +103,8 @@ Kaggle用 `notebooks/kaggle_learning_v1.ipynb` は、GPU上でモデルを実際
 [設計と利用条件](docs/learning-policy-v2-plan.md)、[Kaggle実行・結果返却手順](docs/learning-policy-v2-handoff.md)を参照してください。
 `notebooks/kaggle_policy_v2.ipynb`は承認済みの自己生成データを同梱し、GPU学習だけを最大1時間で行います。
 教師生成と256局の比較はCPUで別に行い、学習前後と強い固定教師の結果を区別します。
+[実測結果](docs/learning-policy-v2-results.md)では、学習前に63勝0敗1分、固定材料評価に31勝30敗3分、
+固定NNUE教師に0勝64敗。学習前への改善を確認し、材料評価・教師を上回る証拠は得られませんでした。
 
 ## 次の開発段階
 1. 固定対局条件で現在のCPU AIの棋力を測り、詰み探索・評価関数を改善する。

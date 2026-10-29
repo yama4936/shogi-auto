@@ -1,0 +1,907 @@
+{
+  "experiment": "policy-value-v2",
+  "status": "trained_and_evaluated",
+  "is_reinforcement_learning": false,
+  "optimal_method_proven": false,
+  "gpu": {
+    "status": "trained",
+    "exit_code": 0,
+    "watchdog_triggered": false,
+    "wall_seconds": 36.251652767000024,
+    "source": {
+      "commit": "a4854e6f48d3ea22ee2504b5405f9921668c14fb",
+      "source_sha256": "e1a2940b8c07e32fcd906afe93c46cb265cbc89dc1c6b5ba56dde4787fefe5fb",
+      "dirty": false,
+      "offline_bundle": true
+    },
+    "source_zip_sha256": "b52427e7dc55a7515dd4c4f9111bf4eca0091a02e36ccc6d9ed6327cd4f1ff7d",
+    "data_zip_sha256": "3c0dbbe0743ee2e2e6bb8bac4305c4c300223c891f3fbb830c0280338c11299a",
+    "visible_gpus": 2,
+    "gpu_names": [
+      "Tesla T4",
+      "Tesla T4"
+    ],
+    "gpu_training_verified": true,
+    "cuda_optimizer_steps_total": 2400,
+    "strength_improvement_verified": false,
+    "cpu_arena_pending": true,
+    "note": "Save private outputs and switch the session OFF immediately; this Notebook does no CPU arena or teacher generation.",
+    "estimated_allocation_gpu_hours": 0.02013980709277779
+  },
+  "training": {
+    "architecture": "pv43-c32-r2",
+    "epochs": 80,
+    "batch_size": 128,
+    "seed": 314160,
+    "learning_rate": 0.001,
+    "weight_decay": 0.01,
+    "device": "cuda",
+    "torch": "2.11.0+cu128",
+    "numpy": "2.1.3",
+    "python": "3.13.15",
+    "cuda_runtime": "12.8",
+    "source": {
+      "commit": "a4854e6f48d3ea22ee2504b5405f9921668c14fb",
+      "source_sha256": "e1a2940b8c07e32fcd906afe93c46cb265cbc89dc1c6b5ba56dde4787fefe5fb",
+      "dirty": false,
+      "offline_bundle": true
+    },
+    "counts": {
+      "train": 3804,
+      "validation": 515,
+      "test": 484
+    },
+    "completed_epochs": 80,
+    "best_epoch": 14,
+    "cuda_optimizer_steps_total": 2400,
+    "gpu_training_verified": true,
+    "selected_weights_changed": true,
+    "initial_metrics": {
+      "train": {
+        "policy_ce": 3.9408767504145543,
+        "value_mse": 0.728091911750637,
+        "policy_accuracy": 0.0636172450248438,
+        "joint_loss": 4.668968662165192
+      },
+      "validation": {
+        "policy_ce": 3.9558312286451023,
+        "value_mse": 0.6802866188067834,
+        "policy_accuracy": 0.06407766990291262,
+        "joint_loss": 4.636117847451886
+      }
+    },
+    "selected_metrics": {
+      "train": {
+        "policy_ce": 2.5809476260256443,
+        "value_mse": 0.1974860716192003,
+        "policy_accuracy": 0.3422712932187049,
+        "joint_loss": 2.7784336976448447
+      },
+      "validation": {
+        "policy_ce": 3.1723939205836325,
+        "value_mse": 0.28935020157707925,
+        "policy_accuracy": 0.2621359223879657,
+        "joint_loss": 3.4617441221607117
+      },
+      "test": {
+        "policy_ce": 3.0721985328295998,
+        "value_mse": 0.36801499719462116,
+        "policy_accuracy": 0.27272726878646975,
+        "joint_loss": 3.440213530024221
+      }
+    },
+    "initial_model_sha256": "c2a70bbb28c0eec67d64c64faeacd89495dfc00dc959d4319534dc0cb19e148a",
+    "selected_model_sha256": "e9ed4c48c8c9da04b2992196acdbf25b6e68f15058f2d02ffe396befb6856d86",
+    "initial_weights_sha256": "d422e88ed17240fd2fdb4b4f5a72314a12a0551a660353ca230488308232f5e3",
+    "selected_weights_sha256": "922df69128314e622bfbca469bba3fb19867adedccb8ae9d9d8890fb489f7abb",
+    "selection_policy": "validation policy CE + value MSE only; no arena or test selection"
+  },
+  "last_epoch_validation": {
+    "policy_ce": 9.377036366879361,
+    "value_mse": 0.38893051892142444,
+    "policy_accuracy": 0.18446601941747573,
+    "joint_loss": 9.765966885800786
+  },
+  "data": {
+    "source": {
+      "commit": "78540c56f0796f0d969824cc1bff0980bed1d419",
+      "source_sha256": "e1a2940b8c07e32fcd906afe93c46cb265cbc89dc1c6b5ba56dde4787fefe5fb",
+      "dirty": false,
+      "offline_bundle": false
+    },
+    "config": {
+      "games": 512,
+      "samples_per_game": 16,
+      "max_plies": 160,
+      "teacher_nodes": 32768,
+      "trajectory_nodes": 2048,
+      "min_split_rows": 100,
+      "seed": 20261104
+    },
+    "features_sha256": "7d9417dbbd556279aac186105690129416cac10bedd5f1d0d9887249667baf7f",
+    "teacher_binary_sha256": "02cddd0dec5efd19611f6388e6c65b53e4e5f8227c4a57edacca84eafbe457be",
+    "teacher_weights_sha256": "1141d275bceec911156801f27303dc9ff5beb24f4f59144cc069306c59e80782",
+    "previous_datasets": {
+      "data.npz:3ae8f272eb6ebfe5a59cdde7a8179318b12d92b5a0fd574c21b17c8d210e3dcf": "3ae8f272eb6ebfe5a59cdde7a8179318b12d92b5a0fd574c21b17c8d210e3dcf",
+      "data.npz:55d8c8796d0e3926b5a78820ea8ad87f3addb3cf820574903d59c8ad8f325879": "55d8c8796d0e3926b5a78820ea8ad87f3addb3cf820574903d59c8ad8f325879",
+      "data.npz:28754e3066bc30ce3ef71e487cccbcd85585fed81e625a1040cc3ad31f73b2e2": "28754e3066bc30ce3ef71e487cccbcd85585fed81e625a1040cc3ad31f73b2e2"
+    },
+    "value_target": "tanh(side-to-move teacher cp / 600); mate signed 1",
+    "external_game_records": false,
+    "teacher_weight_transfer": false,
+    "counts": {
+      "train": 3804,
+      "validation": 515,
+      "test": 484
+    },
+    "rows": 4803,
+    "rejections": {},
+    "sampling_counts": {
+      "requested": 8192,
+      "available": 4803,
+      "labelled_before_dedup": 4803,
+      "selected_not_reached": 3389
+    },
+    "games": 512,
+    "corpus_sha256": "86035d9a4cdf58a07e312daa7aa43908ca9a67aed040f837b032465f43277927",
+    "npz_sha256": "7be04d753bd5b4cb39fee474b1f8db33e07ee787e5b97a277558456ab7109af1",
+    "teacher_identity": [
+      "id name YaneuraOu NNUE 8.60git 64SSE42",
+      "id author by yaneurao"
+    ],
+    "budget": {
+      "used_wall_seconds": 459.8526180450008,
+      "limit_wall_seconds": 1800.0,
+      "visible_gpus": 0,
+      "estimated_allocation_gpu_hours": 0.0,
+      "quota_remaining": "must be checked in Kaggle UI; not inferred from CUDA"
+    },
+    "split_policy": "whole games; canonical/mirrored states deduplicated globally; prior v1 inputs excluded"
+  },
+  "arena": {
+    "source": {
+      "commit": "e7d39f65d1037d62e64c6d9446e10aadf1ddb8fa",
+      "source_sha256": "e1a2940b8c07e32fcd906afe93c46cb265cbc89dc1c6b5ba56dde4787fefe5fb",
+      "dirty": false,
+      "offline_bundle": false
+    },
+    "config": {
+      "pairs": 32,
+      "max_plies": 384,
+      "move_seconds": 0.1,
+      "seed": 20261106,
+      "functional_only": false
+    },
+    "data_sha256": "7be04d753bd5b4cb39fee474b1f8db33e07ee787e5b97a277558456ab7109af1",
+    "models": {
+      "initial-policy.json": "c2a70bbb28c0eec67d64c64faeacd89495dfc00dc959d4319534dc0cb19e148a",
+      "best-policy.json": "e9ed4c48c8c9da04b2992196acdbf25b6e68f15058f2d02ffe396befb6856d86"
+    },
+    "teacher_binary_sha256": "02cddd0dec5efd19611f6388e6c65b53e4e5f8227c4a57edacca84eafbe457be",
+    "teacher_weights_sha256": "1141d275bceec911156801f27303dc9ff5beb24f4f59144cc069306c59e80782",
+    "openings": [
+      [
+        "4i3h",
+        "8c8d",
+        "7g7f",
+        "4c4d",
+        "2g2f",
+        "9c9d",
+        "6i5h",
+        "4a5b",
+        "7i7h",
+        "4d4e",
+        "7f7e",
+        "5b4b"
+      ],
+      [
+        "9g9f",
+        "4a5b",
+        "5g5f",
+        "8c8d",
+        "3i4h",
+        "8b6b",
+        "7g7f",
+        "3c3d",
+        "4i3h",
+        "6a7b",
+        "5f5e",
+        "2a3c"
+      ],
+      [
+        "2h6h",
+        "7c7d",
+        "6h2h",
+        "3a4b",
+        "2h6h",
+        "6a6b",
+        "5i4h",
+        "2b3a",
+        "2g2f",
+        "1a1b",
+        "2f2e",
+        "6b7c"
+      ],
+      [
+        "4i3h",
+        "4a4b",
+        "7i7h",
+        "8b5b",
+        "1i1h",
+        "9a9b",
+        "8g8f",
+        "3c3d",
+        "5i4i",
+        "4c4d",
+        "2g2f",
+        "6a7b"
+      ],
+      [
+        "4g4f",
+        "3a3b",
+        "4f4e",
+        "4a4b",
+        "2g2f",
+        "9c9d",
+        "2h4h",
+        "8b6b",
+        "1i1h",
+        "6b9b",
+        "1g1f",
+        "8c8d"
+      ],
+      [
+        "2h5h",
+        "8b7b",
+        "2g2f",
+        "5a4b",
+        "6g6f",
+        "8c8d",
+        "7i6h",
+        "7b9b",
+        "4i4h",
+        "7a6b",
+        "5g5f",
+        "6a7b"
+      ],
+      [
+        "8g8f",
+        "8b4b",
+        "6g6f",
+        "6a6b",
+        "5i4h",
+        "9c9d",
+        "4g4f",
+        "6c6d",
+        "9i9h",
+        "9a9c",
+        "4i3h",
+        "6b6c"
+      ],
+      [
+        "3g3f",
+        "5c5d",
+        "1g1f",
+        "4c4d",
+        "7g7f",
+        "9c9d",
+        "8h7g",
+        "2c2d",
+        "3i4h",
+        "3a3b",
+        "9i9h",
+        "9a9b"
+      ],
+      [
+        "8g8f",
+        "7a7b",
+        "6i5h",
+        "7c7d",
+        "1i1h",
+        "3a4b",
+        "5g5f",
+        "9c9d",
+        "8f8e",
+        "7b7c",
+        "1g1f",
+        "5c5d"
+      ],
+      [
+        "6g6f",
+        "7a6b",
+        "6i5h",
+        "7c7d",
+        "7g7f",
+        "8a7c",
+        "2g2f",
+        "6b7a",
+        "7f7e",
+        "8b4b",
+        "5h4h",
+        "4b6b"
+      ],
+      [
+        "8g8f",
+        "7c7d",
+        "3g3f",
+        "8b5b",
+        "2h3h",
+        "9c9d",
+        "3i4h",
+        "8a7c",
+        "4i3i",
+        "3a4b",
+        "5i6h",
+        "7a8b"
+      ],
+      [
+        "2h1h",
+        "8c8d",
+        "9i9h",
+        "2c2d",
+        "5i6h",
+        "8b8c",
+        "8g8f",
+        "9c9d",
+        "3i4h",
+        "4a4b",
+        "6i5h",
+        "4c4d"
+      ],
+      [
+        "1i1h",
+        "8b6b",
+        "1g1f",
+        "6b5b",
+        "2h4h",
+        "1a1b",
+        "1f1e",
+        "5b6b",
+        "8g8f",
+        "7a8b",
+        "4h3h",
+        "9a9b"
+      ],
+      [
+        "7i7h",
+        "4a4b",
+        "8g8f",
+        "4b3b",
+        "7g7f",
+        "6c6d",
+        "9g9f",
+        "6a6b",
+        "1g1f",
+        "6d6e",
+        "5i5h",
+        "6b5b"
+      ],
+      [
+        "5g5f",
+        "8b5b",
+        "6g6f",
+        "9a9b",
+        "6i5h",
+        "1a1b",
+        "7i6h",
+        "3a4b",
+        "9g9f",
+        "5b6b",
+        "7g7f",
+        "2b3a"
+      ],
+      [
+        "6i5h",
+        "6c6d",
+        "5h4h",
+        "6a5b",
+        "9g9f",
+        "3c3d",
+        "4h5h",
+        "2b4d",
+        "1i1h",
+        "8b7b",
+        "9i9h",
+        "5a6b"
+      ],
+      [
+        "3i4h",
+        "4a5b",
+        "7g7f",
+        "1c1d",
+        "1g1f",
+        "6c6d",
+        "7f7e",
+        "1d1e",
+        "8h5e",
+        "6a7b",
+        "6i6h",
+        "5a6b"
+      ],
+      [
+        "8g8f",
+        "4a3b",
+        "7i7h",
+        "6a5b",
+        "9g9f",
+        "8b9b",
+        "1i1h",
+        "6c6d",
+        "5i4h",
+        "9b6b",
+        "4i5h",
+        "5a4a"
+      ],
+      [
+        "9i9h",
+        "7c7d",
+        "1g1f",
+        "7a6b",
+        "4g4f",
+        "2c2d",
+        "6g6f",
+        "9a9b",
+        "6i5h",
+        "8a7c",
+        "8h9i",
+        "5c5d"
+      ],
+      [
+        "6g6f",
+        "4a5b",
+        "4g4f",
+        "8b9b",
+        "6i6h",
+        "5a6b",
+        "4f4e",
+        "3a4b",
+        "2h5h",
+        "5c5d",
+        "5h4h",
+        "2c2d"
+      ],
+      [
+        "9i9h",
+        "8b4b",
+        "2h4h",
+        "6a6b",
+        "1i1h",
+        "3c3d",
+        "3i3h",
+        "9a9b",
+        "4h6h",
+        "6b5b",
+        "8h9i",
+        "4a3b"
+      ],
+      [
+        "7i6h",
+        "5a5b",
+        "5i5h",
+        "6a7b",
+        "6h5i",
+        "5b4b",
+        "3g3f",
+        "8c8d",
+        "2h3h",
+        "4a3b",
+        "3h2h",
+        "2c2d"
+      ],
+      [
+        "2h4h",
+        "8b7b",
+        "5i5h",
+        "7c7d",
+        "5h6h",
+        "7b3b",
+        "6h5i",
+        "5c5d",
+        "3i2h",
+        "6a5b",
+        "7i7h",
+        "6c6d"
+      ],
+      [
+        "6i5h",
+        "1a1b",
+        "1g1f",
+        "8b3b",
+        "1i1h",
+        "7a8b",
+        "9i9h",
+        "2b1a",
+        "9g9f",
+        "9a9b",
+        "3i3h",
+        "8c8d"
+      ],
+      [
+        "2h3h",
+        "6a5b",
+        "4i4h",
+        "5c5d",
+        "4g4f",
+        "3a3b",
+        "9i9h",
+        "9c9d",
+        "7i6h",
+        "4a4b",
+        "2g2f",
+        "6c6d"
+      ],
+      [
+        "7g7f",
+        "3c3d",
+        "3i3h",
+        "2a3c",
+        "5i4h",
+        "5a4b",
+        "7i7h",
+        "4a5b",
+        "2h1h",
+        "7c7d",
+        "2g2f",
+        "1a1b"
+      ],
+      [
+        "6g6f",
+        "8b9b",
+        "3g3f",
+        "2c2d",
+        "4i3h",
+        "5a6b",
+        "6f6e",
+        "6a5a",
+        "2h1h",
+        "6b5b",
+        "2g2f",
+        "7a8b"
+      ],
+      [
+        "3i4h",
+        "4a5b",
+        "3g3f",
+        "3c3d",
+        "5i6h",
+        "1c1d",
+        "2g2f",
+        "2a3c",
+        "2h3h",
+        "5b4b",
+        "4h3i",
+        "8b6b"
+      ],
+      [
+        "4i4h",
+        "4a5b",
+        "1g1f",
+        "9a9b",
+        "3i3h",
+        "6c6d",
+        "3g3f",
+        "5a4a",
+        "1f1e",
+        "8b7b",
+        "3h3g",
+        "6a6b"
+      ],
+      [
+        "9i9h",
+        "9c9d",
+        "4i5h",
+        "7a6b",
+        "8h9i",
+        "4a4b",
+        "8g8f",
+        "1a1b",
+        "7i6h",
+        "5a4a",
+        "9g9f",
+        "8b7b"
+      ],
+      [
+        "5i4h",
+        "7a7b",
+        "4i3h",
+        "6a7a",
+        "9g9f",
+        "6c6d",
+        "9f9e",
+        "8b9b",
+        "8i9g",
+        "4c4d",
+        "4h5h",
+        "2c2d"
+      ],
+      [
+        "6i7h",
+        "1a1b",
+        "4i4h",
+        "6a5b",
+        "5g5f",
+        "5a6a",
+        "4h5h",
+        "4c4d",
+        "8g8f",
+        "5c5d",
+        "2g2f",
+        "4a5a"
+      ]
+    ],
+    "comparisons": [
+      "trained-vs-initial",
+      "trained-vs-material",
+      "trained-vs-teacher",
+      "initial-vs-teacher"
+    ],
+    "status": "evaluated",
+    "summaries": {
+      "trained-vs-initial": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 63,
+        "losses": 0,
+        "draws": 1,
+        "mean_score": 0.9921875,
+        "score_95pct_pair_bootstrap": [
+          0.9765625,
+          1.0
+        ],
+        "reason_counts": {
+          "詰み": 63,
+          "千日手": 1
+        },
+        "score_95pct_hoeffding_bound": [
+          0.7521068021700198,
+          1.0
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 0,
+        "complete": true,
+        "improvement_evidence": true,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      },
+      "trained-vs-material": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 31,
+        "losses": 30,
+        "draws": 3,
+        "mean_score": 0.5078125,
+        "score_95pct_pair_bootstrap": [
+          0.3984375,
+          0.6171875
+        ],
+        "reason_counts": {
+          "詰み": 61,
+          "千日手": 3
+        },
+        "score_95pct_hoeffding_bound": [
+          0.2677318021700198,
+          0.7478931978299802
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 0,
+        "complete": true,
+        "improvement_evidence": false,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      },
+      "trained-vs-teacher": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 0,
+        "losses": 64,
+        "draws": 0,
+        "mean_score": 0.0,
+        "score_95pct_pair_bootstrap": [
+          0.0,
+          0.0
+        ],
+        "reason_counts": {
+          "詰み": 64
+        },
+        "score_95pct_hoeffding_bound": [
+          0.0,
+          0.24008069782998018
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 0,
+        "complete": true,
+        "improvement_evidence": false,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      },
+      "initial-vs-teacher": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 0,
+        "losses": 64,
+        "draws": 0,
+        "mean_score": 0.0,
+        "score_95pct_pair_bootstrap": [
+          0.0,
+          0.0
+        ],
+        "reason_counts": {
+          "詰み": 64
+        },
+        "score_95pct_hoeffding_bound": [
+          0.0,
+          0.24008069782998018
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 0,
+        "complete": true,
+        "improvement_evidence": false,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      }
+    },
+    "complete": true,
+    "functional_only": false,
+    "improvement_against_prior_baselines_verified": false,
+    "strong_teacher_superiority_verified": false,
+    "rules_limitations": "No entering-king adjudication or official CSA clocks; declaration stops as an error",
+    "budget": {
+      "used_wall_seconds": 846.859941562001,
+      "limit_wall_seconds": 3600.0,
+      "visible_gpus": 0,
+      "estimated_allocation_gpu_hours": 0.0,
+      "quota_remaining": "must be checked in Kaggle UI; not inferred from CUDA"
+    }
+  },
+  "audit": {
+    "status": "verified",
+    "replayed_games": 256,
+    "replayed_legal_moves_including_openings": 19124,
+    "opening_pairs": 32,
+    "all_comparisons_same_openings_colors_clocks": true,
+    "opening_overlap_with_train_validation_test": false,
+    "model_data_teacher_source_hashes_verified": true,
+    "cpu_gpu_inference_parity": {
+      "initial-policy.json": {
+        "validation": {
+          "cpu": {
+            "policy_ce": 3.955831287902536,
+            "value_mse": 0.6802866181123604,
+            "policy_accuracy": 0.06407766990291262,
+            "joint_loss": 4.6361179060148965
+          },
+          "absolute_delta_from_gpu": {
+            "policy_ce": 5.9257433626669354e-08,
+            "value_mse": 6.944230745986602e-10,
+            "policy_accuracy": 0.0,
+            "joint_loss": 5.856301044104839e-08
+          }
+        }
+      },
+      "best-policy.json": {
+        "validation": {
+          "cpu": {
+            "policy_ce": 3.1723936821650534,
+            "value_mse": 0.2893501830589618,
+            "policy_accuracy": 0.2621359223879657,
+            "joint_loss": 3.4617438652240153
+          },
+          "absolute_delta_from_gpu": {
+            "policy_ce": 2.384185791015625e-07,
+            "value_mse": 1.851811742836773e-08,
+            "policy_accuracy": 0.0,
+            "joint_loss": 2.569366963633968e-07
+          }
+        },
+        "test": {
+          "cpu": {
+            "policy_ce": 3.0721984697767524,
+            "value_mse": 0.36801499891872247,
+            "policy_accuracy": 0.2727272749439744,
+            "joint_loss": 3.440213468695475
+          },
+          "absolute_delta_from_gpu": {
+            "policy_ce": 6.305284738772343e-08,
+            "value_mse": 1.7241013061664034e-09,
+            "policy_accuracy": 6.157504672810177e-09,
+            "joint_loss": 6.132874608155703e-08
+          }
+        }
+      }
+    },
+    "search_statistics": {
+      "trained-vs-initial": {
+        "0": {
+          "turns": 2577,
+          "nodes_per_turn": 63.87116802483508,
+          "weighted_mean_search_depth": 5.133876600698486,
+          "mean_think_seconds": 0.10215482508307457,
+          "max_think_seconds": 0.1748367469990626
+        },
+        "1": {
+          "turns": 2546,
+          "nodes_per_turn": 74.66457187745483,
+          "weighted_mean_search_depth": 2.3558523173605654,
+          "mean_think_seconds": 0.10118550335465362,
+          "max_think_seconds": 0.18144242700145696
+        }
+      },
+      "trained-vs-material": {
+        "0": {
+          "turns": 3439,
+          "nodes_per_turn": 49.947077638848505,
+          "weighted_mean_search_depth": 3.5731317243384706,
+          "mean_think_seconds": 0.1041305168432995,
+          "max_think_seconds": 0.18748766499993508
+        },
+        "1": {
+          "turns": 3438,
+          "nodes_per_turn": 691.2638161721932,
+          "weighted_mean_search_depth": 1.5261780104712042,
+          "mean_think_seconds": 0.09989072618119069,
+          "max_think_seconds": 0.10754566299874568
+        }
+      },
+      "trained-vs-teacher": {
+        "0": {
+          "turns": 1093,
+          "nodes_per_turn": 77.05397987191216,
+          "weighted_mean_search_depth": 4.139066788655078,
+          "mean_think_seconds": 0.10300028494783352,
+          "max_think_seconds": 0.1863301199991838
+        },
+        "1": {
+          "turns": 1125,
+          "nodes_per_turn": 109388.54311111111,
+          "weighted_mean_search_depth": 15.820444444444444,
+          "mean_think_seconds": 0.08922015553424394,
+          "max_think_seconds": 0.10498207099954016
+        }
+      },
+      "initial-vs-teacher": {
+        "0": {
+          "turns": 901,
+          "nodes_per_turn": 103.03218645948945,
+          "weighted_mean_search_depth": 2.3973362930077693,
+          "mean_think_seconds": 0.0962335087580735,
+          "max_think_seconds": 0.16502865099755581
+        },
+        "1": {
+          "turns": 933,
+          "nodes_per_turn": 106805.14683815648,
+          "weighted_mean_search_depth": 15.747052518756698,
+          "mean_think_seconds": 0.08719273276840289,
+          "max_think_seconds": 0.10598113800006104
+        }
+      }
+    },
+    "ending_counts": {
+      "詰み": 252,
+      "千日手": 4
+    },
+    "strength_claim": "Improved versus initial model only; superiority to material baseline and fixed teacher not established",
+    "uncertainty_note": "All-loss pair bootstrap degenerates to [0,0]; use the preregistered Hoeffding upper bound 0.24008, not certainty of a true zero rate"
+  },
+  "input_transfer": {
+    "text_bytes": 1738833,
+    "text_sha256": "79f7b2396e18e5679bd01b70a39e44887a5c9f89214ce542b5d9d1b97ac4b719",
+    "decoded_zip_sha256": "132c105625cbdfb30850baa4b14da79a56073105abb7fa833d34aec4cad435fc",
+    "all_item_checksums_verified": true
+  },
+  "conclusion": {
+    "improved_vs_initial_model": true,
+    "superiority_to_material_baseline_established": false,
+    "superiority_to_teacher_established": false,
+    "tournament_strength_established": false,
+    "same_data_more_epochs_supported": false,
+    "next_priority": "Increase diverse licensed teacher data and validate tactical value/search quality with a fresh preregistered arena; retain existing negative baselines"
+  }
+}
