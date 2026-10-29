@@ -37,7 +37,12 @@ class OfflineNotebookTests(unittest.TestCase):
             names = bundle.namelist()
             self.assertIn('licenses/python-shogi-GPL-3.0.txt', names)
             self.assertFalse(any(name.endswith(('.pt', '.pth', '.npz', '.bin', '.exe')) for name in names))
-            self.assertEqual(bundle.read('src/shogi_auto/engine.py'), (ROOT / 'src/shogi_auto/engine.py').read_bytes())
+            origin = json.loads(bundle.read('SOURCE.json'))['commit']
+            for name in names:
+                if name.startswith('src/') and name.endswith('.py'):
+                    pinned = subprocess.run(['git', '-C', str(ROOT), 'show', f'{origin}:{name}'],
+                                            capture_output=True, check=True).stdout
+                    self.assertEqual(bundle.read(name), pinned)
             bundle.extractall(directory)
             env = os.environ.copy()
             env['PYTHONPATH'] = str(Path(directory) / 'src') + os.pathsep + str(Path(directory) / 'vendor')

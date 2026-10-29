@@ -16,6 +16,9 @@ class SearchResult:
     depth: int
     nodes: int
     score: int
+    root_moves_evaluated: int = 0
+    root_legal_moves: int = 0
+    attempted_depth: int = 0
 
 
 def evaluate(board):
@@ -36,7 +39,7 @@ def evaluate(board):
     return score if board.turn == shogi.BLACK else -score
 
 
-def ordered_moves(board, preferred=None):
+def ordered_moves(board, preferred=None, legal=None):
     def priority(move):
         victim = board.piece_at(move.to_square)
         attacker = board.piece_at(move.from_square) if move.from_square is not None else None
@@ -44,7 +47,10 @@ def ordered_moves(board, preferred=None):
             VALUES[victim.piece_type] * 10 - (VALUES[attacker.piece_type] if attacker else 0)
             if victim else 0
         ) + (500 if move.promotion else 0)
-    return sorted(board.legal_moves, key=priority, reverse=True)
+    # LegalMoveGenerator.__len__ itself generates all legal moves. Giving it
+    # directly to sorted() triggers a second pass via Python's length hint.
+    source = (move for move in board.legal_moves) if legal is None else legal
+    return sorted(source, key=priority, reverse=True)
 
 
 class SearchStopped(Exception):
@@ -79,11 +85,16 @@ def _search(board, seconds, max_depth, max_nodes, stop, evaluator):
         nodes += 1
         if board.is_fourfold_repetition():
             return 0
+        if depth == 0:
+            # A leaf needs to know whether at least one legal reply exists;
+            # sorting every possible reply here is a needless extra branching
+            # factor. The library restores its board before yielding a move.
+            if next(iter(board.legal_moves), None) is None:
+                return -MATE + ply
+            return evaluator(board)
         legal = ordered_moves(board)
         if not legal:
             return -MATE + ply
-        if depth == 0:
-            return evaluator(board)
         value = -MATE
         for move in legal:
             board.push(move)
@@ -96,10 +107,12 @@ def _search(board, seconds, max_depth, max_nodes, stop, evaluator):
                 break
         return value
 
+    evaluated, attempted_depth = 0, 0
     for depth in range(1, max_depth + 1):
+        evaluated, attempted_depth = 0, depth
         candidate, score = best.move, -MATE - 1
         try:
-            for move in ordered_moves(board, best.move):
+            for move in ordered_moves(board, best.move, moves):
                 check_budget()
                 board.push(move)
                 try:
@@ -108,9 +121,15 @@ def _search(board, seconds, max_depth, max_nodes, stop, evaluator):
                     board.pop()
                 if value > score:
                     candidate, score = move, value
+                evaluated += 1
         except SearchStopped:
+            # Before the first iteration completes, retain the best fully
+            # evaluated root move rather than reverting to an unevaluated
+            # ordering fallback. Report depth 0 honestly, with root coverage.
+            if best.depth == 0 and evaluated:
+                best = SearchResult(candidate, 0, nodes, score)
             break
         best = SearchResult(candidate, depth, nodes, score)
         if score >= MATE - 100:
             break
-    return SearchResult(best.move, best.depth, nodes, best.score)
+    return SearchResult(best.move, best.depth, nodes, best.score, evaluated, len(moves), attempted_depth)

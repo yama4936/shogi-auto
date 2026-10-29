@@ -82,6 +82,7 @@ def play_game(task):
     for move in prefix:
         game.push(move)
     timings, depth_counts, node_counts = [[], []], [[], []], [[], []]
+    root_coverage, fallback_turns = [[], []], [0, 0]
     error, time_forfeit, illegal = None, False, False
     winner, reason = None, 'move_limit'
     hard_limit = max(0.5, config['move_seconds'] * 5)
@@ -100,6 +101,8 @@ def play_game(task):
             timings[side].append(elapsed)
             depth_counts[side].append(result.depth)
             node_counts[side].append(result.nodes)
+            root_coverage[side].append(result.root_moves_evaluated / max(1, result.root_legal_moves))
+            fallback_turns[side] += int(result.depth == 0 and result.root_moves_evaluated == 0)
             if elapsed > hard_limit:
                 time_forfeit, winner, reason = True, 1 - mover, 'time_forfeit'
                 break
@@ -121,6 +124,8 @@ def play_game(task):
             'timing_seconds': [{'mean': sum(values) / len(values) if values else None,
                                 'max': max(values) if values else None} for values in timings],
             'mean_depth': [sum(values) / len(values) if values else None for values in depth_counts],
+            'zero_evaluated_fallback_turns': fallback_turns,
+            'mean_last_iteration_root_coverage': [sum(values) / len(values) if values else None for values in root_coverage],
             'total_nodes': [sum(values) for values in node_counts]}
 
 
