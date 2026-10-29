@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>将棋を指そう | shogi-auto</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><div><p class="eyebrow">SHOGI AUTO · CPU AI</p><h1>将棋を指そう</h1></div><span class="badge">練習対局</span></header>
+    <p class="intro">駒を選んで、光ったマスへ。持ち駒もタップして打てます。</p>
+    <div class="layout">
+      <section class="play-area" aria-label="将棋盤と持ち駒">
+        <div class="player"><h2 id="opponent-label">後手 · AI</h2><span>持ち駒</span></div>
+        <div id="opponent-hand" class="hand" aria-label="AIの持ち駒"></div>
+        <div class="board-frame"><div id="files" class="coordinates"></div><div id="board" aria-label="将棋盤"></div></div>
+        <div class="player"><h2 id="human-label">先手 · あなた</h2><span>持ち駒</span></div>
+        <div id="human-hand" class="hand" aria-label="あなたの持ち駒"></div>
+        <p id="selection" class="selection">接続しています…</p>
+      </section>
+      <aside>
+        <section class="status-card"><p class="eyebrow">いまの対局</p><h2 id="status" role="status" aria-live="polite">盤面を準備中</h2><p id="detail"></p><p id="error" role="alert"></p><button id="retry" hidden>再接続する</button>
+          <div class="new-game"><label for="side">あなたの手番</label><select id="side"><option value="0">先手（最初に指す）</option><option value="1">後手（AIが最初に指す）</option></select><button id="new" class="primary">もう一局</button><button id="resign">投了する</button></div>
+        </section>
+        <section class="history-card"><h2>棋譜 <span id="move-count">0手</span></h2><ol id="history" aria-label="指し手の記録"></ol><p id="empty-history">最初の一手をどうぞ。</p></section>
+        <p class="limits">材料評価と短時間探索の練習用AIです。詰み・投了・千日手（連続王手は反則負け）を判定します。持将棋・入玉宣言・時間切れは未対応。対局はサーバーのメモリに保存し、停止や6時間の未操作で消えます。</p>
+      </aside>
+    </div>
+    <footer>CPUで動作 · 外部サービス不要 · 棋力はこれから育てていきます</footer>
+  </main>
+  <dialog id="promotion" aria-labelledby="promotion-title"><h2 id="promotion-title">成りますか？</h2><p>成ると駒の動きが変わります。</p><div class="dialog-actions"><button id="promote" class="primary">成る</button><button id="unpromote">成らない</button><button id="cancel-promotion">選び直す</button></div></dialog>
+</body>
+</html>

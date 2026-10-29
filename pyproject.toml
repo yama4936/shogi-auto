@@ -7,7 +7,17 @@ name = "shogi-auto"
 version = "0.1.0"
 description = "Shogi AI development scaffold with Kaggle GPU checks"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["python-shogi==1.1.1"]
+
+[project.optional-dependencies]
+browser = ["playwright==1.62.0"]
+
+[project.scripts]
+shogi-auto-web = "shogi_auto.web:main"
+shogi-auto-usi = "shogi_auto.usi:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+shogi_auto = ["static/*"]
