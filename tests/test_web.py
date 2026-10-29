@@ -11,7 +11,7 @@ from shogi_auto.web import ShogiServer
 class WebTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.server = ShogiServer(('127.0.0.1', 0))
+        cls.server = ShogiServer(('127.0.0.1', 0), allowed_hosts=['shogi-test.example'])
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
         cls.base = 'http://127.0.0.1:' + str(cls.server.server_port)
@@ -73,6 +73,15 @@ class WebTests(unittest.TestCase):
                 self.assertIn("default-src 'self'", response.headers['Content-Security-Policy'])
                 self.assertGreater(len(response.read()), 200)
         self.request('/../pyproject.toml', status=404)
+
+    def test_explicit_preview_host_and_origin_validation(self):
+        self.request('/api/game', headers={'Host': 'shogi-test.example'})
+        self.request('/api/game', status=403, headers={'Host': 'attacker.example'})
+        self.request('/api/game', status=403, headers={'Origin': 'http://['})
+        self.request('/api/game', headers={'Host': 'shogi-test.example', 'Origin': 'https://shogi-test.example'})
+        self.request('/api/new', {'version': 0}, status=403,
+                     headers={'Host': 'shogi-test.example', 'Origin': 'https://attacker.example',
+                              'Content-Type': 'application/json'})
 
 
 if __name__ == '__main__':

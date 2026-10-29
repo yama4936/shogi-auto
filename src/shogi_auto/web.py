@@ -25,8 +25,9 @@ class Session:
 class ShogiServer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, address):
+    def __init__(self, address, allowed_hosts=()):
         super().__init__(address, Handler)
+        self.allowed_hosts = {"localhost", "127.0.0.1", "::1", address[0], *allowed_hosts}
         self.sessions = {}
         self.session_lock = threading.Lock()
 
@@ -70,14 +71,14 @@ class Handler(BaseHTTPRequestHandler):
         # Reject browser DNS rebinding and cross-site mutations for a local server.
         try:
             host = urlsplit("http://" + self.headers.get("Host", "")).hostname
+            origin = self.headers.get("Origin")
+            parsed_origin = urlsplit(origin) if origin else None
         except ValueError:
             return False
-        allowed = {"localhost", "127.0.0.1", "::1", self.server.server_address[0]}
-        if host not in allowed:
+        if host not in self.server.allowed_hosts:
             return False
-        origin = self.headers.get("Origin")
-        if origin and (urlsplit(origin).netloc != self.headers.get("Host") or
-                       urlsplit(origin).scheme not in ("http", "https")):
+        if parsed_origin and (parsed_origin.netloc != self.headers.get("Host") or
+                              parsed_origin.scheme not in ("http", "https")):
             return False
         return self.headers.get("Sec-Fetch-Site") != "cross-site"
 
@@ -148,8 +149,10 @@ def main():
     parser = argparse.ArgumentParser(description="人間とCPU AIの将棋対局（ローカル用）")
     parser.add_argument("--host", default="127.0.0.1", help="既定: 127.0.0.1。信頼できる接続内で使用")
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--allowed-host", action="append", default=[],
+                        help="認証付き転送や一時検証URLの正確なホスト名（複数指定可）")
     args = parser.parse_args()
-    with ShogiServer((args.host, args.port)) as server:
+    with ShogiServer((args.host, args.port), args.allowed_host) as server:
         print(f"将棋を開始: http://{args.host}:{server.server_port} （Ctrl+Cで終了）", flush=True)
         try:
             server.serve_forever()
