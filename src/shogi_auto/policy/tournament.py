@@ -84,9 +84,11 @@ class TournamentGame:
             return self.finish(self.game.result['winner'], self.game.result['reason'])
         return None
 
-    def disconnect(self):
+    def disconnect(self, fault_color=None):
         if self.result is None:
-            return self.finish(1-self.game.board.turn, 'communication_failure')
+            color=self.game.board.turn if fault_color is None else fault_color
+            if color not in (0,1):raise ValueError('Unknown disconnected side')
+            return self.finish(1-color, 'communication_failure')
         return self.result
 
 

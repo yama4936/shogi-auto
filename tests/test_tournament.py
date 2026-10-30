@@ -102,9 +102,12 @@ class TournamentRulesTests(unittest.TestCase):
         thread.join(timeout=2);self.assertFalse(thread.is_alive())
         self.assertEqual(seen,['LOGIN fixture fixture-password','AGREE local-fixture'])
         for count in range(5):
-            game=TournamentGame()
-            for move in OPENING[:count]:game.play(move,0)
-            self.assertEqual(game.disconnect()['reason'],'communication_failure')
+            for disconnected in (0,1):
+                game=TournamentGame()
+                for move in OPENING[:count]:game.play(move,0)
+                result=game.disconnect(disconnected)
+                self.assertEqual(result['reason'],'communication_failure')
+                self.assertEqual(result['winner'],1-disconnected)
         failed=CSAProtocol()
         with self.assertRaises(ValueError):failed.feed('LOGIN:incorrect')
 
