@@ -1,0 +1,197 @@
+{
+  "status": "ready_for_parent_gpu_execution",
+  "additional_rounds_completed": 0,
+  "authorized_additional_rounds": 3,
+  "gpu_training_executed_for_v3": false,
+  "notebook_sha256": "e291c05b577a1f4a6fab8b7cc5b704f38cd9b2e1428cf2295933e50c5f815f11",
+  "notebook_metadata": {
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "policy_source": {
+      "commit": "71f8cd513399dfc00d48baff22a796affee9edbb",
+      "source_sha256": "32bf855152e97a5a590ccab56ff5cbaba9867ac13cccd3fbbf0c8d3ac76b6610",
+      "dirty": false,
+      "offline_bundle": true
+    },
+    "source_zip_sha256": "6d445882551616571e5f171b05a9047b9b8ce331f28dcabee94bcf33ff31679f",
+    "data_zip_sha256": "0f631cb0db48c11934314bba5a00c39e7bb29a7955e0c2e0f854094c8f795dd6",
+    "data_embedding": null,
+    "round_id": 3,
+    "input_contains_own_start_model": true,
+    "input_embedding": false,
+    "start_weights_sha256": "922df69128314e622bfbca469bba3fb19867adedccb8ae9d9d8890fb489f7abb"
+  },
+  "input_archive_bytes": 2246639,
+  "input_archive_sha256": "0f631cb0db48c11934314bba5a00c39e7bb29a7955e0c2e0f854094c8f795dd6",
+  "npz_sha256": "8a5d1c28fdf525df3c44fa78eabc880435b1ab3aab49d3fa3e4dfe7c444505e9",
+  "counts": {
+    "train": 9636,
+    "validation": 738,
+    "test": 748
+  },
+  "fresh_rows": 7318,
+  "replayed_training_rows": 3804,
+  "replayed_validation_rows": 0,
+  "replayed_test_rows": 0,
+  "fresh_config": {
+    "games": 768,
+    "samples_per_game": 16,
+    "max_plies": 160,
+    "teacher_nodes": 32768,
+    "trajectory_nodes": 2048,
+    "min_split_rows": 100,
+    "seed": 20261110,
+    "seed_namespace": "denryusen-dr7-round3",
+    "opening_prefix": [
+      "5i5h",
+      "5a5b",
+      "5h5i",
+      "5b5a"
+    ]
+  },
+  "generation_source": {
+    "commit": "e17e2aba93c5e33dd6e06cd0b5297506eafed887",
+    "source_sha256": "f827b9907f3e24db3067e78cf35226929ffc618d52c3c176a141fa663967b055",
+    "dirty": false,
+    "offline_bundle": false
+  },
+  "preparation_source": {
+    "commit": "71f8cd513399dfc00d48baff22a796affee9edbb",
+    "source_sha256": "32bf855152e97a5a590ccab56ff5cbaba9867ac13cccd3fbbf0c8d3ac76b6610",
+    "dirty": false,
+    "offline_bundle": false
+  },
+  "features_sha256": "7d9417dbbd556279aac186105690129416cac10bedd5f1d0d9887249667baf7f",
+  "rejected_candidate": "legacy seed ranges overlapped v2; 6452 rows never trained; replaced by experiment-scoped SHA256 seeds",
+  "data_generation_cpu_seconds_including_rejected_candidate": 1331.257641472,
+  "input_modes_tested": [
+    "ZIP",
+    "Kaggle expanded files",
+    "tampered payload rejected"
+  ],
+  "library_native_text_roundtrip_verified": true,
+  "library_text_bytes": 3007408,
+  "library_text_sha256": "3fe1a4919dae4277473a636e7b8acc253e293ae6cfec4b799d8021a311a41f06",
+  "unit_tests": {
+    "total": 53,
+    "passed": 53,
+    "skipped": 0,
+    "tournament_tests": 7
+  },
+  "frozen_material_engine_sha256": "45bf1c76d685500c26aac99a05beeac84b037c38f5ee4d492da20cb4cf5e1fcc",
+  "frozen_material_unchanged_from_v2": true,
+  "local_tournament_preflight": {
+    "source": {
+      "commit": "258fe3fbcf331d52e5852e067f75acd8ea71cca3",
+      "source_sha256": "7ec805cb2c6b072d542add583765dee71ab0ec37282d044cc3d9d5060e94ee2d",
+      "dirty": false,
+      "offline_bundle": false
+    },
+    "rules_url": "https://denryu-sen.jp/denryusen/dr7_prd/dr7_rule.pdf",
+    "rules_sha256": "707c43e5b749a8319240a6b986cc8616f8662424bf47bd9f486e6ec719a3014b",
+    "status": "evaluated",
+    "complete": true,
+    "budget": {
+      "used_wall_seconds": 288.36728884499985,
+      "limit_wall_seconds": 1800.0,
+      "visible_gpus": 0,
+      "estimated_allocation_gpu_hours": 0.0,
+      "quota_remaining": "must be checked in Kaggle UI; not inferred from CUDA"
+    },
+    "time_forfeits": 0,
+    "illegal_moves": 0,
+    "false_declarations": 0,
+    "abnormal_terminations": 0,
+    "real_csa_connection_verified": false,
+    "communication_failures_external": "not tested"
+  },
+  "local_tournament_preflight_games": [
+    {
+      "id": "before:0",
+      "opponent": "before",
+      "candidate_color": 0,
+      "winner": 0,
+      "reason": "詰み",
+      "normal_score": 1,
+      "tournament_score": 1,
+      "plies": 251,
+      "clocks_remaining": [
+        432,
+        850
+      ]
+    },
+    {
+      "id": "before:1",
+      "opponent": "before",
+      "candidate_color": 1,
+      "winner": 1,
+      "reason": "詰み",
+      "normal_score": 1,
+      "tournament_score": 1,
+      "plies": 110,
+      "clocks_remaining": [
+        290,
+        710
+      ]
+    },
+    {
+      "id": "material:0",
+      "opponent": "material",
+      "candidate_color": 0,
+      "winner": 1,
+      "reason": "詰み",
+      "normal_score": 0,
+      "tournament_score": 0,
+      "plies": 104,
+      "clocks_remaining": [
+        284,
+        686
+      ]
+    },
+    {
+      "id": "material:1",
+      "opponent": "material",
+      "candidate_color": 1,
+      "winner": 0,
+      "reason": "詰み",
+      "normal_score": 0,
+      "tournament_score": 0,
+      "plies": 93,
+      "clocks_remaining": [
+        269,
+        692
+      ]
+    },
+    {
+      "id": "teacher:0",
+      "opponent": "teacher",
+      "candidate_color": 0,
+      "winner": 1,
+      "reason": "詰み",
+      "normal_score": 0,
+      "tournament_score": 0,
+      "plies": 46,
+      "clocks_remaining": [
+        226,
+        612
+      ]
+    },
+    {
+      "id": "teacher:1",
+      "opponent": "teacher",
+      "candidate_color": 1,
+      "winner": 0,
+      "reason": "詰み",
+      "normal_score": 0,
+      "tournament_score": 0,
+      "plies": 53,
+      "clocks_remaining": [
+        194,
+        652
+      ]
+    }
+  ]
+}
