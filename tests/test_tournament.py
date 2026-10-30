@@ -35,9 +35,9 @@ class TournamentRulesTests(unittest.TestCase):
         self.assertEqual(result['normal_scores'],[.5,.5]);self.assertEqual(result['tournament_scores'],[.4,.6])
 
     def test_elapsed_includes_latency_and_floors_fraction(self):
-        clock=Clock();self.assertTrue(clock.elapse(0,180.999));self.assertEqual(clock.remaining[0],0)
+        clock=Clock();self.assertTrue(clock.elapse(0,181.999));self.assertEqual(clock.remaining[0],1)
         self.assertFalse(clock.elapse(0,1.0))
-        game=TournamentGame();result=game.play(OPENING[0],181.01)
+        game=TournamentGame();result=game.play(OPENING[0],182.01)
         self.assertEqual(result['reason'],'time_forfeit');self.assertEqual(result['winner'],1)
         for elapsed in (-1,float('nan'),float('inf')):
             with self.assertRaises(ValueError):Clock().elapse(0,elapsed)
@@ -57,10 +57,14 @@ class TournamentRulesTests(unittest.TestCase):
         board.set_piece_at(shogi.SQUARE_NAMES.index('5d'),shogi.Piece(shogi.KING,0))
         self.assertFalse(declaration(board,180))
 
-    def test_declaration_before_increment_false_declaration_loses(self):
+    def test_declaration_uses_increment_granted_before_turn(self):
         game=TournamentGame(sfen=declaration_board().sfen());game.clock.remaining[0]=0
-        self.assertEqual(game.play('%KACHI',0)['reason'],'false_declaration')
+        self.assertEqual(game.play('%KACHI',0)['reason'],'entering_king')
+        self.assertEqual(game.result['winner'],0)
+        game=TournamentGame(sfen=declaration_board().sfen());game.clock.remaining[0]=0
+        self.assertEqual(game.play('%KACHI',2)['reason'],'time_forfeit')
         self.assertEqual(game.result['winner'],1)
+        game=TournamentGame();self.assertEqual(game.play('%KACHI',0)['reason'],'false_declaration')
         game=TournamentGame(sfen=declaration_board().sfen())
         self.assertEqual(game.play('%KACHI',0)['reason'],'entering_king');self.assertEqual(game.result['winner'],0)
 
@@ -83,13 +87,25 @@ class TournamentRulesTests(unittest.TestCase):
         self.assertEqual(parse_csa_move(board,csa_move(board,'G*4b')),('G*4b',None))
         with self.assertRaises(ValueError):parse_csa_move(shogi.Board(),'+7776HI')
 
+    def test_perpetual_check_on_boundary_remains_a_loss(self):
+        from shogi_auto.game import position_key
+        game=TournamentGame(sfen='4k4/5R3/9/9/9/9/9/9/K8 b - 1')
+        # Offset only the prior move counter; the final three checking cycles
+        # and their check/side history are played and adjudicated normally.
+        game.game.history=[{'color':i%2,'check':False,'usi':'fixture'} for i in range(500)]
+        game.game.positions=[f'prior-{i}' for i in range(500)]+[position_key(game.game.board)]
+        for _ in range(3):
+            for move in ('4b5b','5a4a','5b4b','4a5a'):game.play(move,0)
+        self.assertEqual(len(game.game.history),512)
+        self.assertEqual(game.result['reason'],'連続王手の千日手');self.assertEqual(game.result['winner'],1)
+
     def test_socketpair_login_agree_start_and_disconnect_no_retry(self):
         client,server=socket.socketpair();client.settimeout(2);server.settimeout(2)
         seen=[]
         def mock_server():
             with server,server.makefile('r') as reader:
                 seen.append(reader.readline().strip())
-                server.sendall(b'LOGIN:fixture OK\nBEGIN Game_Summary\nProtocol_Version:1.2.1\nGame_ID:local-fixture\nEND Game_Summary\n')
+                server.sendall(b'LOGIN:fixture OK\nBEGIN Game_Summary\nProtocol_Version:1.2\nGame_ID:local-fixture\nEND Game_Summary\n')
                 seen.append(reader.readline().strip());server.sendall(b'START:local-fixture\n')
         thread=threading.Thread(target=mock_server);thread.start();protocol=CSAProtocol()
         with client,client.makefile('r') as reader:

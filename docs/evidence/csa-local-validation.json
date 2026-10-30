@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "transport": "TCP 127.0.0.1 ephemeral port",
+  "real_tournament_server_connected": false,
+  "wall_seconds": 2.792136514000049,
+  "server_result": {
+    "winner": 0,
+    "reason": "詰み",
+    "normal_scores": [
+      1,
+      0
+    ],
+    "tournament_scores": [
+      1,
+      0
+    ]
+  },
+  "client_results": {
+    "0": {
+      "outcome": "win",
+      "reason": "#RESIGN",
+      "server_confirmed": true,
+      "normal_score": 1.0,
+      "tournament_score": 1.0
+    },
+    "1": {
+      "outcome": "loss",
+      "reason": "#RESIGN",
+      "server_confirmed": true,
+      "normal_score": 0.0,
+      "tournament_score": 0.0
+    }
+  },
+  "plies": 105,
+  "clocks_remaining": [
+    286,
+    706
+  ],
+  "server_client_positions_clocks_verified": true,
+  "client_sha256": "32d3f0f8cfba42ab7163c264e4a2d4e7be4dea549c7c6f14a4d690e8e7dae924",
+  "rules_sha256": "cd445105356e7bec91b18f3a4bff8bb43b52b6dbe4fd498b0bac38d9209dd131",
+  "purpose": "Protocol integration smoke only; no learning or strength comparison",
+  "evidence_date_utc": "2026-10-30",
+  "tests": {
+    "command": "bash scripts/setup.sh",
+    "passed": 67,
+    "skipped": 0
+  },
+  "official_protocol_urls": [
+    "https://www.computer-shogi.org/protocol/tcp_ip_server_121.html",
+    "https://www.computer-shogi.org/protocol/tcp_ip_client_121.html"
+  ],
+  "raw_local_report_sha256": "38ccadd2fcab0faf018faa42d890aafec36453375009eafa04f1329f191cf275",
+  "v3_screening_commitment": {
+    "seed": 20261121,
+    "pairs": 32,
+    "openings_sha256": "45dee725b5021b7f2c83a35dcadd1edbb42171e0ac188d6d79a4b9b7d69d8503",
+    "frozen_source": {
+      "commit": "71f8cd513399dfc00d48baff22a796affee9edbb",
+      "source_sha256": "32bf855152e97a5a590ccab56ff5cbaba9867ac13cccd3fbbf0c8d3ac76b6610",
+      "dirty": false,
+      "offline_bundle": false
+    },
+    "compared_dataset_sha256": {
+      "policy-round3-inputs": "8a5d1c28fdf525df3c44fa78eabc880435b1ab3aab49d3fa3e4dfe7c444505e9",
+      "policy-v2-data": "7be04d753bd5b4cb39fee474b1f8db33e07ee787e5b97a277558456ab7109af1",
+      "policy-round3-fresh": "495434a8249a84c747cfa79a11f70d38e45ba53d04598ee6c5b6968e6e8207f0",
+      "policy-cpu-pilot-v2": "28754e3066bc30ce3ef71e487cccbcd85585fed81e625a1040cc3ad31f73b2e2"
+    },
+    "overlap_with_current_or_prior_corpora": false
+  },
+  "v3_gpu_notebook_unchanged": true,
+  "additional_learning_and_match_rounds_completed": 0
+}

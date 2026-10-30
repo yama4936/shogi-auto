@@ -37,11 +37,11 @@ def evaluate(directory,binary,eval_dir,max_seconds=1800):
                 try:
                     while not game.result:
                         budget.check(reserve=10)
-                        board=game.game.board;side=board.turn;started=time.monotonic()
+                        board=game.game.board;side=board.turn;game.clock.begin(side);started=time.monotonic()
                         if len(game.game.history)<4:command=OPENING[len(game.game.history)]
                         elif declaration(board,game.clock.remaining[side]):command='%KACHI'
                         else:
-                            seconds=min(2.,max(.01,(game.clock.remaining[side]+2)/40))
+                            seconds=min(2.,max(.01,game.clock.remaining[side]/40))
                             if side==color or opponent=='before':
                                 result=choose_policy_move(board,evaluators['candidate' if side==color else 'before'],
                                                           seconds=seconds,max_simulations=128)

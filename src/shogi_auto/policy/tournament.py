@@ -18,15 +18,25 @@ CSA_KINDS = ('', 'FU', 'KY', 'KE', 'GI', 'KI', 'KA', 'HI', 'OU',
 class Clock:
     remaining: list = field(default_factory=lambda: [180, 600])
     increment: int = 2
+    active_color: int | None = None
+
+    def begin(self,color):
+        if self.active_color is None:
+            self.remaining[color] += self.increment
+            self.active_color=color
+        elif self.active_color != color:
+            raise ValueError('Previous turn was not acknowledged')
 
     def elapse(self, color, total_seconds):
         if not math.isfinite(total_seconds) or total_seconds < 0:
             raise ValueError('Elapsed time must include communication and be finite/nonnegative')
+        self.begin(color)
         self.remaining[color] -= math.floor(total_seconds)
-        return self.remaining[color] >= 0
+        return self.remaining[color] > 0
 
     def moved(self, color):
-        self.remaining[color] += self.increment
+        if self.active_color != color:raise ValueError('Wrong acknowledged side')
+        self.active_color=None
 
 
 def declaration(board, remaining):
@@ -78,7 +88,8 @@ class TournamentGame:
             return self.finish(1-color, 'illegal_move')
         self.clock.moved(color)
         # The published DR7 limit overrides mate delivered by the boundary move.
-        if len(self.game.history) >= 512:
+        repetition = self.game.result and self.game.result['reason'] in ('千日手','連続王手の千日手')
+        if len(self.game.history) >= 512 and not repetition:
             return self.finish(None, '512_move_limit')
         if self.game.result:
             return self.finish(self.game.result['winner'], self.game.result['reason'])
@@ -141,7 +152,7 @@ class CSAProtocol:
         elif line == 'END Game_Summary':
             if self.state != 'summary' or 'Game_ID' not in self.summary:raise ValueError('Incomplete summary')
             version = self.summary.get('Protocol_Version', '1.2.1')
-            if version != '1.2.1':raise ValueError('Unsupported CSA protocol')
+            if version not in ('1.2','1.2.1'):raise ValueError('Unsupported CSA protocol')
             self.game_id = self.summary['Game_ID'];self.state = 'ready'
         elif self.state == 'summary' and ':' in line:
             key, value = line.split(':', 1);self.summary[key] = value
