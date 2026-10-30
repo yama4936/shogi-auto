@@ -111,6 +111,7 @@ Kaggle用 `notebooks/kaggle_learning_v1.ipynb` は、GPU上でモデルを実際
 候補準備と実学習・対局の完了数を分けて記録します。
 [v3の学習・256局比較](docs/learning-round3-results.md)は完了し、追加反復は1/3完了です。
 次の[v4計画](docs/learning-round4-plan.md)では教師探索と価値学習を見直します。
+[v4実行資材](docs/learning-round4-handoff.md)はCPU検証済みで、GPU更新と対局評価を待っています。
 [CSA公式仕様との照合・模擬接続の検証](docs/csa-protocol-validation.md)も別途記録しています。
 
 ## 次の開発段階
