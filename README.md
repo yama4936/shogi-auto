@@ -109,6 +109,8 @@ Kaggle用 `notebooks/kaggle_learning_v1.ipynb` は、GPU上でモデルを実際
 大会ルールを反映した追加3回は[改善計画](docs/learning-three-round-plan.md)に記録しています。
 最初の追加反復v3の[実行資材・非公開入力手順](docs/learning-round3-handoff.md)を準備済みです。
 候補準備と実学習・対局の完了数を分けて記録します。
+[v3の学習・256局比較](docs/learning-round3-results.md)は完了し、追加反復は1/3完了です。
+次の[v4計画](docs/learning-round4-plan.md)では教師探索と価値学習を見直します。
 [CSA公式仕様との照合・模擬接続の検証](docs/csa-protocol-validation.md)も別途記録しています。
 
 ## 次の開発段階

@@ -1,0 +1,326 @@
+{
+  "round_id": 3,
+  "additional_rounds_completed": 1,
+  "evaluation_complete": true,
+  "test_evaluation_deferred": true,
+  "selected_weights_sha256": "99600837fb9af11e5e7c21921adf77eaa434e33a63be15065f261e4552c23d8e",
+  "training": {
+    "source": {
+      "commit": "71f8cd513399dfc00d48baff22a796affee9edbb",
+      "source_sha256": "32bf855152e97a5a590ccab56ff5cbaba9867ac13cccd3fbbf0c8d3ac76b6610",
+      "dirty": false,
+      "offline_bundle": true
+    },
+    "counts": {
+      "train": 9636,
+      "validation": 738,
+      "test": 748
+    },
+    "completed_epochs": 22,
+    "best_epoch": 15,
+    "cuda_optimizer_steps_total": 1672,
+    "stop_reason": "validation_early_stopping",
+    "selected_weights_changed": true,
+    "initial_weights_sha256": "922df69128314e622bfbca469bba3fb19867adedccb8ae9d9d8890fb489f7abb",
+    "initial_metrics": {
+      "train": {
+        "policy_ce": 2.88887341886499,
+        "value_mse": 0.26974411087010897,
+        "policy_accuracy": 0.28590701533432766,
+        "joint_loss": 3.158617529735099
+      },
+      "validation": {
+        "policy_ce": 3.1199686798622936,
+        "value_mse": 0.2861316276355811,
+        "policy_accuracy": 0.24390243870132983,
+        "joint_loss": 3.4061003074978746
+      }
+    },
+    "selected_metrics": {
+      "train": {
+        "policy_ce": 2.5897374756853826,
+        "value_mse": 0.1751427974547277,
+        "policy_accuracy": 0.33405977586534025,
+        "joint_loss": 2.7648802731401103
+      },
+      "validation": {
+        "policy_ce": 2.998026045357309,
+        "value_mse": 0.21129366597993587,
+        "policy_accuracy": 0.2601625993645934,
+        "joint_loss": 3.209319711337245
+      }
+    }
+  },
+  "gpu_wall_seconds": 33.060672134000015,
+  "gpu_session_stopped_reported_by_parent": true,
+  "input_payload_sha256_verified": true,
+  "input_zip_sha256_verified_on_gpu": false,
+  "input_zip_sha256": "0f631cb0db48c11934314bba5a00c39e7bb29a7955e0c2e0f854094c8f795dd6",
+  "short_screening": {
+    "source": {
+      "commit": "71f8cd513399dfc00d48baff22a796affee9edbb",
+      "source_sha256": "32bf855152e97a5a590ccab56ff5cbaba9867ac13cccd3fbbf0c8d3ac76b6610",
+      "dirty": false,
+      "offline_bundle": false
+    },
+    "config": {
+      "pairs": 32,
+      "max_plies": 384,
+      "move_seconds": 0.1,
+      "seed": 20261121,
+      "functional_only": false
+    },
+    "games": 256,
+    "summaries": {
+      "trained-vs-initial": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 49,
+        "losses": 14,
+        "draws": 1,
+        "mean_score": 0.7734375,
+        "score_95pct_pair_bootstrap": [
+          0.65625,
+          0.8828125
+        ],
+        "reason_counts": {
+          "詰み": 63,
+          "move_limit": 1
+        },
+        "score_95pct_hoeffding_bound": [
+          0.5333568021700198,
+          1.0
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 1,
+        "complete": true,
+        "improvement_evidence": true,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      },
+      "trained-vs-material": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 38,
+        "losses": 24,
+        "draws": 2,
+        "mean_score": 0.609375,
+        "score_95pct_pair_bootstrap": [
+          0.484375,
+          0.734375
+        ],
+        "reason_counts": {
+          "詰み": 62,
+          "千日手": 2
+        },
+        "score_95pct_hoeffding_bound": [
+          0.3692943021700198,
+          0.8494556978299802
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 0,
+        "complete": true,
+        "improvement_evidence": false,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      },
+      "trained-vs-teacher": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 0,
+        "losses": 64,
+        "draws": 0,
+        "mean_score": 0.0,
+        "score_95pct_pair_bootstrap": [
+          0.0,
+          0.0
+        ],
+        "reason_counts": {
+          "詰み": 64
+        },
+        "score_95pct_hoeffding_bound": [
+          0.0,
+          0.24008069782998018
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 0,
+        "complete": true,
+        "improvement_evidence": false,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      },
+      "initial-vs-teacher": {
+        "games": 64,
+        "complete_pairs": 32,
+        "expected_pairs": 32,
+        "wins": 0,
+        "losses": 64,
+        "draws": 0,
+        "mean_score": 0.0,
+        "score_95pct_pair_bootstrap": [
+          0.0,
+          0.0
+        ],
+        "reason_counts": {
+          "詰み": 64
+        },
+        "score_95pct_hoeffding_bound": [
+          0.0,
+          0.24008069782998018
+        ],
+        "illegal_moves": 0,
+        "time_forfeits": 0,
+        "abnormal_terminations": 0,
+        "move_limit_games": 0,
+        "complete": true,
+        "improvement_evidence": false,
+        "warning": "Small samples or many move-limit games cannot establish strength improvement. No Elo or rank is inferred."
+      }
+    },
+    "diagnostics": {
+      "trained-vs-initial": {
+        "mean_candidate_search_depth": 4.101391863833405,
+        "mean_candidate_simulations_per_game": 2581.15625,
+        "maximum_candidate_move_seconds": 0.1686917889999222
+      },
+      "trained-vs-material": {
+        "mean_candidate_search_depth": 4.219011827591454,
+        "mean_candidate_simulations_per_game": 2895.921875,
+        "maximum_candidate_move_seconds": 0.16811458799998036
+      },
+      "trained-vs-teacher": {
+        "mean_candidate_search_depth": 4.245470047392873,
+        "mean_candidate_simulations_per_game": 1462.84375,
+        "maximum_candidate_move_seconds": 0.16138060100001894
+      },
+      "initial-vs-teacher": {
+        "mean_candidate_search_depth": 4.275940053098256,
+        "mean_candidate_simulations_per_game": 1425.375,
+        "maximum_candidate_move_seconds": 0.1916934239998227
+      }
+    },
+    "wall_seconds": 905.8254680520001,
+    "openings_sha256": "45dee725b5021b7f2c83a35dcadd1edbb42171e0ac188d6d79a4b9b7d69d8503",
+    "legal_plies_replayed": 20209,
+    "anomalies": {
+      "illegal_move": 0,
+      "time_forfeit": 0,
+      "abnormal": 0
+    },
+    "overall_baseline_superiority_verified": false,
+    "teacher_superiority_verified": false
+  },
+  "cpu_validation_parity": {
+    "initial": {
+      "validation": {
+        "policy_ce": 3.1199687212140255,
+        "value_mse": 0.2861315809533525,
+        "policy_accuracy": 0.24390243870132983,
+        "joint_loss": 3.406100302167378
+      },
+      "max_cpu_cuda_difference": 4.6682228582728413e-08,
+      "weights_sha256": "922df69128314e622bfbca469bba3fb19867adedccb8ae9d9d8890fb489f7abb",
+      "file_sha256": "f73da01e646c0a2476161b10b50ae0d86b5f18e57d3a9380bbe277d79b4d5cfa"
+    },
+    "selected": {
+      "validation": {
+        "policy_ce": 2.9980259406857375,
+        "value_mse": 0.21129368225410378,
+        "policy_accuracy": 0.2601626033220834,
+        "joint_loss": 3.2093196229398413
+      },
+      "max_cpu_cuda_difference": 1.046715714103641e-07,
+      "weights_sha256": "99600837fb9af11e5e7c21921adf77eaa434e33a63be15065f261e4552c23d8e",
+      "file_sha256": "d412395e58bb0e1dae562c506d44beb2f755e065c6a92494c3edcbba64aacf0a"
+    }
+  },
+  "tournament_local": {
+    "status": "passed",
+    "source": {
+      "commit": "31ed6b0565171d9d64a595d0d2a368d4c8eba0af",
+      "source_sha256": "fb8ce1968ebcb936ec1ca0ece57986329008f66dee560a74ee0974ed1377ad77",
+      "dirty": false,
+      "offline_bundle": false
+    },
+    "legal_plies_replayed": 448,
+    "games": 6,
+    "clocks_results_verified": true,
+    "real_csa_connection_verified": false,
+    "by_opponent": {
+      "before": {
+        "wins": 2,
+        "losses": 0,
+        "draws": 0,
+        "normal_points": 2,
+        "tournament_points": 2
+      },
+      "material": {
+        "wins": 1,
+        "losses": 1,
+        "draws": 0,
+        "normal_points": 1,
+        "tournament_points": 1
+      },
+      "teacher": {
+        "wins": 0,
+        "losses": 2,
+        "draws": 0,
+        "normal_points": 0,
+        "tournament_points": 0
+      }
+    },
+    "report_sha256": "b6b3e4ff9581e0acba536dbd33f83a1fe3f11a764e472ccf4cad5c26a88ddc89",
+    "wall_seconds": 194.37641617999998,
+    "anomalies": {
+      "time_forfeits": 0,
+      "illegal_moves": 0,
+      "false_declarations": 0,
+      "abnormal_terminations": 0
+    }
+  },
+  "training_split_distribution": {
+    "policy-v2-data": {
+      "train_only": true,
+      "counts": {
+        "train_rows": 3804,
+        "in_check": 371,
+        "capture": 1320,
+        "drop": 808,
+        "promotion": 395,
+        "mate_label": 386,
+        "saturated_value_abs_gt_095": 2348,
+        "gives_check": 537
+      },
+      "mean_teacher_depth": 13.504994742376446,
+      "mean_abs_teacher_score": 1350.685331230284
+    },
+    "policy-round3-fresh-rules": {
+      "train_only": true,
+      "counts": {
+        "train_rows": 5832,
+        "in_check": 530,
+        "capture": 1986,
+        "drop": 1160,
+        "promotion": 540,
+        "mate_label": 511,
+        "saturated_value_abs_gt_095": 3295,
+        "gives_check": 721
+      },
+      "mean_teacher_depth": 13.458676268861455,
+      "mean_abs_teacher_score": 1295.9466735253773
+    }
+  },
+  "file_sha256": {
+    "training-report.json": "17f4c1ae945246c712300cbd3bcc22c70131b523e00b45653f6f4d5fff94e86d",
+    "policy-arena-report.json": "74ea24ba60457d9ac05d98b7b79a7b3b2996f1afa962e24f83ee5711f09aacd5",
+    "evaluation-audit.json": "02cd47fe9d895eff4b31b36cbb20444f8ba12c2944ccf41991f195f59b92cf11",
+    "initial-policy.json": "f73da01e646c0a2476161b10b50ae0d86b5f18e57d3a9380bbe277d79b4d5cfa",
+    "best-policy.json": "d412395e58bb0e1dae562c506d44beb2f755e065c6a92494c3edcbba64aacf0a"
+  }
+}
