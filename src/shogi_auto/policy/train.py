@@ -23,6 +23,19 @@ def legal_policy_loss(logits, labels, legal, smoothing=0):
     return (1-smoothing)*hard+smoothing*uniform
 
 
+def training_order(arrays, ids, seed, epoch, balanced_sample_weight=1):
+    """Train-only resampling; retain the original permutation at weight one."""
+    import numpy as np
+    if not 1 <= balanced_sample_weight <= 4:
+        raise ValueError('Balanced sampling weight must be within [1,4]')
+    if not np.all(arrays['split'][ids] == 'train'):
+        raise ValueError('Only train rows can enter the training sampler')
+    rng = np.random.default_rng(seed + epoch)
+    if balanced_sample_weight == 1:return rng.permutation(ids)
+    weights = np.where(np.abs(arrays['value'][ids]) <= .95, balanced_sample_weight, 1.)
+    return rng.choice(ids, size=len(ids), replace=True, p=weights / weights.sum())
+
+
 def read_data(directory):
     import numpy as np
     directory = Path(directory)
@@ -56,7 +69,7 @@ def read_data(directory):
 def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
           max_seconds=3300, seed=314160, learning_rate=.001, functional_only=False,
           initial_model=None, weight_decay=.01, label_smoothing=0, value_weight=1,
-          patience=None, min_epochs=6, defer_test=False):
+          patience=None, min_epochs=6, defer_test=False, balanced_sample_weight=1):
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
     import numpy as np
     import torch
@@ -81,6 +94,7 @@ def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
                 'warm_start_file_sha256': sha256(initial_model) if initial_model else None,
                 'warm_start_weights_sha256': weights_digest(model) if initial_model else None,
                 'label_smoothing':label_smoothing,'value_weight':value_weight,
+                'balanced_sample_weight':balanced_sample_weight,
                 'patience':patience,'min_epochs':min_epochs,'defer_test':defer_test,
                 'data_sha256': manifest['npz_sha256'], 'source': source_identity()}
     settings_path = directory / 'training-settings.json'
@@ -150,7 +164,7 @@ def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
     try:
         for epoch in range(start, epochs):
             budget.check(reserve=30)
-            order = np.random.default_rng(seed+epoch).permutation(splits['train'])
+            order = training_order(arrays,splits['train'],seed,epoch,balanced_sample_weight)
             model.train()
             for offset in range(0, len(order), batch_size):
                 # Stop within a batch boundary; the next epoch is replayed on resume
@@ -218,6 +232,7 @@ def main():
     parser.add_argument('--weight-decay',type=float,default=.01)
     parser.add_argument('--label-smoothing',type=float,default=0)
     parser.add_argument('--value-weight',type=float,default=1)
+    parser.add_argument('--balanced-sample-weight',type=float,default=1)
     parser.add_argument('--patience',type=int)
     parser.add_argument('--min-epochs',type=int,default=6)
     parser.add_argument('--defer-test',action='store_true')
@@ -227,6 +242,7 @@ def main():
         raise ValueError('Training limits exceed the bounded first policy experiment')
     if not (0 < args.learning_rate <= .01 and 0 <= args.weight_decay <= .1 and
             0 <= args.label_smoothing <= .2 and .1 <= args.value_weight <= 5 and
+            1 <= args.balanced_sample_weight <= 4 and
             (args.patience is None or 1 <= args.patience <= 20) and 1 <= args.min_epochs <= 100 and
             (args.patience is None or args.min_epochs <= args.epochs)):
         raise ValueError('Invalid regularization/early-stopping settings')
@@ -235,7 +251,8 @@ def main():
                            functional_only=args.functional_only,initial_model=args.initial_model,seed=args.seed,
                            learning_rate=args.learning_rate,weight_decay=args.weight_decay,
                            label_smoothing=args.label_smoothing,value_weight=args.value_weight,
-                           patience=args.patience,min_epochs=args.min_epochs,defer_test=args.defer_test), ensure_ascii=False), flush=True)
+                           patience=args.patience,min_epochs=args.min_epochs,defer_test=args.defer_test,
+                           balanced_sample_weight=args.balanced_sample_weight), ensure_ascii=False), flush=True)
 
 
 if __name__ == '__main__':main()

@@ -1,4 +1,4 @@
-"""Pin the first additional round. Private input includes our own start model."""
+"""Pin reviewed additional rounds. Private inputs include our own start model."""
 import argparse
 import hashlib
 import json
@@ -8,8 +8,8 @@ import zipfile
 from build_policy_notebook import build
 
 
-def build_round(output, archive, round_id=3):
-    if round_id != 3:raise ValueError('Freeze v4/v5 only after the prior actual result has been reviewed')
+def build_round(output, archive, round_id=3, previous_review=None):
+    if round_id not in (3,4):raise ValueError('Freeze v5 only after the v4 actual result has been reviewed')
     archive=Path(archive);input_sha=hashlib.sha256(archive.read_bytes()).hexdigest()
     with zipfile.ZipFile(archive) as z:
         expected={'data.npz','data-manifest.json','start-policy.json','SHA256SUMS.json'}
@@ -20,6 +20,14 @@ def build_round(output, archive, round_id=3):
         manifest=json.loads(z.read('data-manifest.json'))
         if manifest['round_id']!=round_id:raise ValueError('Input round differs')
         if checks['start-policy.json']!=manifest['warm_start_file_sha256']:raise ValueError('Start model differs')
+    if round_id==4:
+        if previous_review is None:raise ValueError('A completed v3 result review is required')
+        review=json.loads(Path(previous_review).read_text())
+        if (review['round_id']!=3 or not review['evaluation_complete'] or not review['test_evaluation_deferred'] or
+                review['training']['cuda_optimizer_steps_total']<=0 or
+                review['selected_weights_sha256']!=manifest['warm_start_weights_sha256'] or
+                hashlib.sha256(Path(previous_review).read_bytes()).hexdigest()!=manifest['previous_round_review_sha256']):
+            raise ValueError('Previous actual result or selected warm start differs')
     build(output,input_sha)
     notebook=json.loads(output.read_text());code=''.join(notebook['cells'][1]['source'])
     def change(old,new):
@@ -64,6 +72,8 @@ if manifest['warm_start_file_sha256']!=INPUT_CHECKSUMS['start-policy.json']:rais
            "         '--initial-model',str(data_dir/'start-policy.json'),'--learning-rate','0.0003',\n"
            "         '--weight-decay','0.03','--label-smoothing','0.05','--patience','6','--min-epochs','6','--seed','314161','--defer-test']")
     change('3500-(time.monotonic()-started)','1500-(time.monotonic()-started)')
+    if round_id==4:
+        change("'--seed','314161'","'--seed','314162','--value-weight','2','--balanced-sample-weight','2'")
     change("result={'status':training.get('status','failed')",f"result={{'round_id':{round_id},'status':training.get('status','failed')")
     change("'cpu_arena_pending':True,","'cpu_arena_pending':True,'input_zip_sha256_verified':input_zip_verified,'input_payload_sha256_verified':True,")
     code=code.replace('/kaggle/working/shogi-policy-v2',f'/kaggle/working/shogi-policy-round{round_id}')
@@ -77,9 +87,9 @@ if manifest['warm_start_file_sha256']!=INPUT_CHECKSUMS['start-policy.json']:rais
     notebook['metadata']['input_embedding']=False
     notebook['metadata']['start_weights_sha256']=manifest['warm_start_weights_sha256']
     notebook['cells'][0]['source']=[
-        '# 電竜戦 追加1回目/3（v3）：過学習対策\n',
+        f'# 電竜戦 追加{round_id-2}回目/3（v{round_id}）\n',
         f'非公開・Internet OFF。非公開Inputへ policy-round{round_id}-inputs.zip を追加してください。\n',
-        '自分のv2重みから追加学習します。モデルや入力データをこの公開Notebookへ埋め込んでいません。\n',
+        f'自分のv{round_id-1}重みから追加学習します。モデルや入力データをこの公開Notebookへ埋め込んでいません。\n',
         '無料GPU残量をUIで確認し、REMAINING_FREE_GPU_HOURSへ入力。既存PyTorch/CUDAを更新しません。\n',
         '最大40epoch・validation早期終了。testは計算せず、全3回の方法確定後にCPUで最終検証します。\n',
         '学習累計1200秒・全体1500秒＋終了猶予15秒。保存後すぐセッションOFF。対局はCPUで別実行。\n']
@@ -94,4 +104,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--input-archive',type=Path,required=True)
     p.add_argument('--output',type=Path,default=Path('notebooks/kaggle_policy_round3.ipynb'))
-    a=p.parse_args();build_round(a.output,a.input_archive)
+    p.add_argument('--round-id',type=int,default=3);p.add_argument('--previous-review',type=Path)
+    a=p.parse_args();build_round(a.output,a.input_archive,a.round_id,a.previous_review)

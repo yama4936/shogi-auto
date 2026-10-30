@@ -100,6 +100,19 @@ for line in sys.stdin:
 @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('numpy'),
                      'optional PyTorch/NumPy are unavailable')
 class PolicyNetworkTests(unittest.TestCase):
+    def test_balanced_sampler_keeps_split_boundary_and_resume_determinism(self):
+        import numpy as np
+        from shogi_auto.policy.train import training_order
+        arrays={'split':np.array(['train']*4+['validation','test']),
+                'value':np.array([0.,.1,.999,-.999,0.,0.])}
+        ids=np.arange(4)
+        np.testing.assert_array_equal(training_order(arrays,ids,23,4),np.random.default_rng(27).permutation(ids))
+        a=training_order(arrays,ids,23,4,2)
+        np.testing.assert_array_equal(a,training_order(arrays,ids,23,4,2))
+        self.assertTrue(set(a)<=set(ids))
+        for foreign in (4,5):
+            with self.assertRaises(ValueError):training_order(arrays,np.array([0,foreign]),23,4,2)
+
     def test_smoothing_never_allocates_target_mass_to_illegal_moves(self):
         import torch
         from shogi_auto.policy.train import legal_policy_loss
@@ -126,12 +139,15 @@ class PolicyNetworkTests(unittest.TestCase):
             initial=root/'initial.json';model=build_network();expected=weights_digest(model)
             export_network(initial,model,{'purpose':'own-model test warm start'})
             result=train(root/'run',data,epochs=3,batch_size=2,max_seconds=60,functional_only=True,
-                initial_model=initial,learning_rate=.0003,label_smoothing=.05,patience=1,min_epochs=1,defer_test=True)
+                initial_model=initial,learning_rate=.0003,label_smoothing=.05,patience=1,min_epochs=1,defer_test=True,
+                balanced_sample_weight=2,value_weight=2)
             self.assertEqual(result['initial_weights_sha256'],expected)
             self.assertEqual(result['initial_model_sha256'],sha256(root/'run'/'initial-policy.json'))
             self.assertEqual(result['test_evaluation_deferred'],True)
             self.assertNotIn('test',result['selected_metrics'])
             self.assertGreater(result['optimizer_steps_this_launch'],0)
+            self.assertEqual(result['balanced_sample_weight'],2)
+            self.assertEqual(result['value_weight'],2)
 
     def test_optimizer_resume_matches_uninterrupted_training(self):
         import numpy as np

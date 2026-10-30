@@ -5,6 +5,7 @@ from functools import lru_cache
 import json
 from multiprocessing import get_context
 from pathlib import Path
+import shutil
 import time
 
 import shogi
@@ -20,7 +21,7 @@ from .teacher import UsiTeacher
 from .train import read_data
 
 
-@lru_cache(maxsize=2)
+@lru_cache(maxsize=3)
 def evaluator(path):
     return Evaluator(load_network(path))
 
@@ -31,7 +32,8 @@ def play(task):
     initial = str(root / 'initial-policy.json')
     chosen = str(root / 'best-policy.json')
     candidate = initial if comparison == 'initial-vs-teacher' else chosen
-    opponent = initial if comparison == 'trained-vs-initial' else None
+    opponent = (initial if comparison == 'trained-vs-initial' else
+                str(root / 'fixed-v2-policy.json') if comparison == 'trained-vs-fixed-v2' else None)
     strong = comparison in ('trained-vs-teacher','initial-vs-teacher')
     candidate_evaluator = evaluator(candidate)
     opponent_evaluator = evaluator(opponent) if opponent is not None else None
@@ -88,7 +90,7 @@ def play(task):
             'timing_seconds':[{'mean':sum(v)/len(v) if v else None,'max':max(v) if v else None} for v in times]}
 
 
-def arena(directory, data_directory, binary, eval_dir, config, max_seconds=3600):
+def arena(directory, data_directory, binary, eval_dir, config, max_seconds=3600, fixed_v2_model=None):
     directory = Path(directory)
     arrays, manifest = read_data(data_directory)
     forbidden = set()
@@ -106,8 +108,21 @@ def arena(directory, data_directory, binary, eval_dir, config, max_seconds=3600)
                 openings.append(prefix);break
         else:raise ValueError('Unable to construct disjoint held-out openings')
     comparisons = ('trained-vs-initial','trained-vs-material','trained-vs-teacher','initial-vs-teacher')
+    model_names = ['initial-policy.json', 'best-policy.json']
+    if fixed_v2_model is not None:
+        baseline = Path(fixed_v2_model)
+        expected = '922df69128314e622bfbca469bba3fb19867adedccb8ae9d9d8890fb489f7abb'
+        if json.loads(baseline.read_text()).get('weights_sha256') != expected:
+            raise ValueError('The fixed v2 baseline must be the preserved v2 selected model')
+        load_network(baseline)
+        target = directory / 'fixed-v2-policy.json'
+        if target.exists() and sha256(target) != sha256(baseline):
+            raise ValueError('Refusing to replace a different fixed baseline')
+        if not target.exists():shutil.copyfile(baseline, target)
+        comparisons += ('trained-vs-fixed-v2',)
+        model_names.append('fixed-v2-policy.json')
     identity = {'source':source_identity(),'config':config,'data_sha256':manifest['npz_sha256'],
-                'models':{name:sha256(directory/name) for name in ('initial-policy.json','best-policy.json')},
+                'models':{name:sha256(directory/name) for name in model_names},
                 'teacher_binary_sha256':sha256(binary),'teacher_weights_sha256':sha256(Path(eval_dir)/'nn.bin'),
                 'openings':openings,'comparisons':list(comparisons)}
     settings_path = directory/'policy-arena-settings.json'
@@ -146,7 +161,7 @@ def arena(directory, data_directory, binary, eval_dir, config, max_seconds=3600)
                     row=future.result();completed[row['game_id']]=row
                     stream.write(json.dumps(row,ensure_ascii=False)+'\n');stream.flush()
                     del jobs[future];budget.save()
-                    print(f'policy arena: {len(completed)}/{config["pairs"]*8} {row["game_id"]} {row["outcome"]}',flush=True)
+                    print(f'policy arena: {len(completed)}/{config["pairs"]*2*len(comparisons)} {row["game_id"]} {row["outcome"]}',flush=True)
     except BudgetExpired:status='paused'
     finally:budget.save()
     games=[r for _,r in sorted(completed.items())]
@@ -169,11 +184,12 @@ def main():
     p.add_argument('--pairs',type=int,default=32);p.add_argument('--max-plies',type=int,default=384)
     p.add_argument('--move-seconds',type=float,default=.1);p.add_argument('--seed',type=int,default=20261106)
     p.add_argument('--max-wall-seconds',type=float,default=3600);p.add_argument('--functional-only',action='store_true')
+    p.add_argument('--fixed-v2-model',type=Path)
     a=p.parse_args()
     if not (1<=a.pairs<=64 and 16<=a.max_plies<=384 and .01<=a.move_seconds<=.2):raise ValueError('Arena bounds exceeded')
     if a.pairs<30 and not a.functional_only:raise ValueError('At least 30 paired openings are required')
     config={'pairs':a.pairs,'max_plies':a.max_plies,'move_seconds':a.move_seconds,'seed':a.seed,'functional_only':a.functional_only}
-    report=arena(a.run_dir,a.data_dir,a.teacher_binary,a.eval_dir,config,a.max_wall_seconds)
+    report=arena(a.run_dir,a.data_dir,a.teacher_binary,a.eval_dir,config,a.max_wall_seconds,a.fixed_v2_model)
     print(json.dumps({k:v for k,v in report.items() if k not in ('games','openings')},ensure_ascii=False),flush=True)
 
 
