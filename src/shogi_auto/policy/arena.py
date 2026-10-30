@@ -2,6 +2,7 @@
 import argparse
 from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
 from functools import lru_cache
+import hashlib
 import json
 from multiprocessing import get_context
 from pathlib import Path
@@ -13,6 +14,8 @@ import shogi
 from ..engine import choose_move
 from ..game import Game
 from ..learning.arena import create_opening, summarize
+from ..learning.data import feature_key as legacy_key
+from ..learning.features import encode as legacy_encode
 from .common import Budget, BudgetExpired, sha256, source_identity, write_json
 from .features import feature_key
 from .network import Evaluator, load_network
@@ -90,23 +93,45 @@ def play(task):
             'timing_seconds':[{'mean':sum(v)/len(v) if v else None,'max':max(v) if v else None} for v in times]}
 
 
-def arena(directory, data_directory, binary, eval_dir, config, max_seconds=3600, fixed_v2_model=None):
-    directory = Path(directory)
-    arrays, manifest = read_data(data_directory)
-    forbidden = set()
-    import hashlib
-    for x in arrays['x']:
-        forbidden.add(min(hashlib.sha256(x[:42].tobytes()).hexdigest(),
-                          hashlib.sha256(x[:42,:,::-1].copy().tobytes()).hexdigest()))
+def opening_exclusions(arrays, paths=()):
+    import numpy as np
+    forbidden, legacy, identities = set(), set(), {}
+    def add(vectors):
+        if vectors.ndim==2 and vectors.shape[1]==1141:
+            legacy.update(legacy_key(x) for x in vectors)
+        elif vectors.ndim==4 and vectors.shape[1:]==(43,9,9):
+            for x in vectors:
+                forbidden.add(min(hashlib.sha256(x[:42].tobytes()).hexdigest(),
+                                  hashlib.sha256(x[:42,:,::-1].copy().tobytes()).hexdigest()))
+        else:raise ValueError('Unsupported opening exclusion features')
+    add(arrays['x'])
+    for path in paths:
+        path=Path(path);digest=sha256(path);identities[path.parent.name+':'+digest]=digest
+        with np.load(path,allow_pickle=False) as archive:add(archive['x'])
+    return forbidden,legacy,identities
+
+
+def select_openings(config, forbidden, legacy=()):
     openings = []
+    rejected = 0
     for pair_id in range(config['pairs']):
         for attempt in range(100):
             prefix = create_opening(config['seed'] + pair_id*1000 + attempt, set())
             board = shogi.Board()
             for usi in prefix:board.push_usi(usi)
-            if feature_key(board) not in forbidden and prefix not in openings:
+            if (feature_key(board) not in forbidden and legacy_key(legacy_encode(board)) not in legacy
+                    and prefix not in openings):
                 openings.append(prefix);break
+            rejected += 1
         else:raise ValueError('Unable to construct disjoint held-out openings')
+    return openings,rejected
+
+
+def arena(directory, data_directory, binary, eval_dir, config, max_seconds=3600, fixed_v2_model=None, excluded_data=()):
+    directory = Path(directory)
+    arrays, manifest = read_data(data_directory)
+    forbidden,legacy,excluded_identities=opening_exclusions(arrays,excluded_data)
+    openings,rejected_openings=select_openings(config,forbidden,legacy)
     comparisons = ('trained-vs-initial','trained-vs-material','trained-vs-teacher','initial-vs-teacher')
     model_names = ['initial-policy.json', 'best-policy.json']
     if fixed_v2_model is not None:
@@ -124,7 +149,8 @@ def arena(directory, data_directory, binary, eval_dir, config, max_seconds=3600,
     identity = {'source':source_identity(),'config':config,'data_sha256':manifest['npz_sha256'],
                 'models':{name:sha256(directory/name) for name in model_names},
                 'teacher_binary_sha256':sha256(binary),'teacher_weights_sha256':sha256(Path(eval_dir)/'nn.bin'),
-                'openings':openings,'comparisons':list(comparisons)}
+                'openings':openings,'comparisons':list(comparisons),
+                'excluded_datasets':excluded_identities,'rejected_opening_candidates':rejected_openings}
     settings_path = directory/'policy-arena-settings.json'
     if settings_path.exists() and json.loads(settings_path.read_text()) != identity:
         raise ValueError('Arena source/config/models changed; use a new directory')
@@ -185,11 +211,12 @@ def main():
     p.add_argument('--move-seconds',type=float,default=.1);p.add_argument('--seed',type=int,default=20261106)
     p.add_argument('--max-wall-seconds',type=float,default=3600);p.add_argument('--functional-only',action='store_true')
     p.add_argument('--fixed-v2-model',type=Path)
+    p.add_argument('--exclude-data',type=Path,action='append',default=[])
     a=p.parse_args()
     if not (1<=a.pairs<=64 and 16<=a.max_plies<=384 and .01<=a.move_seconds<=.2):raise ValueError('Arena bounds exceeded')
     if a.pairs<30 and not a.functional_only:raise ValueError('At least 30 paired openings are required')
     config={'pairs':a.pairs,'max_plies':a.max_plies,'move_seconds':a.move_seconds,'seed':a.seed,'functional_only':a.functional_only}
-    report=arena(a.run_dir,a.data_dir,a.teacher_binary,a.eval_dir,config,a.max_wall_seconds,a.fixed_v2_model)
+    report=arena(a.run_dir,a.data_dir,a.teacher_binary,a.eval_dir,config,a.max_wall_seconds,a.fixed_v2_model,a.exclude_data)
     print(json.dumps({k:v for k,v in report.items() if k not in ('games','openings')},ensure_ascii=False),flush=True)
 
 

@@ -100,6 +100,19 @@ for line in sys.stdin:
 @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('numpy'),
                      'optional PyTorch/NumPy are unavailable')
 class PolicyNetworkTests(unittest.TestCase):
+    def test_opening_exclusion_retains_seed_and_rejects_prior_match_state(self):
+        import numpy as np
+        from shogi_auto.policy.arena import opening_exclusions,select_openings
+        from shogi_auto.policy.features import encode
+        config={'pairs':1,'seed':20261122}
+        original,_=select_openings(config,set())
+        board=shogi.Board()
+        for usi in original[0]:board.push_usi(usi)
+        forbidden,legacy,_=opening_exclusions({'x':np.array([encode(board)])})
+        selected,rejected=select_openings(config,forbidden,legacy)
+        self.assertGreater(rejected,0);self.assertNotEqual(selected,original)
+        self.assertEqual(select_openings(config,forbidden,legacy),(selected,rejected))
+
     def test_balanced_sampler_keeps_split_boundary_and_resume_determinism(self):
         import numpy as np
         from shogi_auto.policy.train import training_order
