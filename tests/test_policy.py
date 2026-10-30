@@ -14,6 +14,15 @@ from shogi_auto.policy.teacher import UsiTeacher
 
 @unittest.skipUnless(importlib.util.find_spec('numpy'), 'optional NumPy is unavailable')
 class PolicyFeaturesTests(unittest.TestCase):
+    def test_experiment_seed_namespaces_separate_whole_trajectories(self):
+        from shogi_auto.policy.data import trajectory_seed
+        old={'seed':20261104};new={'seed':20261110,'seed_namespace':'denryusen-dr7-round3'}
+        prior={trajectory_seed(old,i) for i in range(512)}
+        fresh={trajectory_seed(new,i) for i in range(768)}
+        self.assertEqual(len(fresh),768);self.assertFalse(prior & fresh)
+        self.assertEqual(trajectory_seed(new,3),trajectory_seed(dict(new),3))
+        self.assertNotEqual(trajectory_seed(new,3),trajectory_seed({**new,'seed_namespace':'denryusen-dr7-round4'},3))
+
     def test_color_rotation_and_hands(self):
         import numpy as np
         black = shogi.Board()
@@ -91,6 +100,39 @@ for line in sys.stdin:
 @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('numpy'),
                      'optional PyTorch/NumPy are unavailable')
 class PolicyNetworkTests(unittest.TestCase):
+    def test_smoothing_never_allocates_target_mass_to_illegal_moves(self):
+        import torch
+        from shogi_auto.policy.train import legal_policy_loss
+        logits=torch.tensor([[2.,1.,400.]],requires_grad=True)
+        loss=legal_policy_loss(logits,torch.tensor([1]),torch.tensor([[True,True,False]]),.05)
+        self.assertTrue(torch.isfinite(loss));self.assertLess(float(loss),2)
+        loss.backward();self.assertEqual(float(logits.grad[0,2]),0)
+
+    def test_warm_start_and_deferred_final_test(self):
+        import numpy as np
+        import torch
+        from shogi_auto.policy.common import sha256,write_json
+        from shogi_auto.policy.network import build_network,export_network,weights_digest
+        from shogi_auto.policy.train import train
+        torch.set_num_threads(1);torch.manual_seed(771)
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);data=root/'data';data.mkdir()
+            x=np.random.default_rng(772).random((6,43,9,9),dtype=np.float32)
+            legal=np.zeros((6,ACTIONS),dtype=np.bool_);legal[:,:2]=True
+            np.savez_compressed(data/'data.npz',x=x,legal=legal,policy=np.zeros(6,dtype=np.int64),
+                value=np.zeros(6,dtype=np.float32),split=np.array(['train']*4+['validation','test']),game_id=np.arange(6,dtype=np.int64))
+            write_json(data/'data-manifest.json',{'npz_sha256':sha256(data/'data.npz'),'counts':{'train':4,'validation':1,'test':1},
+                'teacher_binary_sha256':'0'*64,'teacher_weights_sha256':'1'*64,'teacher_identity':['test fixture']})
+            initial=root/'initial.json';model=build_network();expected=weights_digest(model)
+            export_network(initial,model,{'purpose':'own-model test warm start'})
+            result=train(root/'run',data,epochs=3,batch_size=2,max_seconds=60,functional_only=True,
+                initial_model=initial,learning_rate=.0003,label_smoothing=.05,patience=1,min_epochs=1,defer_test=True)
+            self.assertEqual(result['initial_weights_sha256'],expected)
+            self.assertEqual(result['initial_model_sha256'],sha256(root/'run'/'initial-policy.json'))
+            self.assertEqual(result['test_evaluation_deferred'],True)
+            self.assertNotIn('test',result['selected_metrics'])
+            self.assertGreater(result['optimizer_steps_this_launch'],0)
+
     def test_optimizer_resume_matches_uninterrupted_training(self):
         import numpy as np
         from unittest.mock import patch

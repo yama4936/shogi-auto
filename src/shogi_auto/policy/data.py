@@ -18,6 +18,13 @@ from .features import ACTIONS, action_index, encode, feature_key, legal_actions
 from .teacher import UsiTeacher
 
 
+def trajectory_seed(config, game_id):
+    namespace=config.get('seed_namespace')
+    if namespace:
+        return int.from_bytes(hashlib.sha256(f'{namespace}:{config["seed"]}:{game_id}'.encode()).digest()[:8],'little')
+    return config['seed']+game_id
+
+
 def generate(directory, binary, eval_dir, old_datasets, config, max_seconds=1800):
     import numpy as np
     directory = Path(directory)
@@ -59,10 +66,11 @@ def generate(directory, binary, eval_dir, old_datasets, config, max_seconds=1800
                     continue
                 budget.check(reserve=30)
                 teacher.new_game()
-                rng = random.Random(config['seed'] + game_id)
+                rng = random.Random(trajectory_seed(config, game_id))
                 selected = set(rng.sample(range(16, config['max_plies']), config['samples_per_game']))
                 game, rows, reasons, available = Game(), [], Counter(), 0
-                for ply in range(config['max_plies']):
+                for usi in config.get('opening_prefix', []):game.push(usi)
+                for ply in range(len(game.history),config['max_plies']):
                     if game.result:
                         break
                     budget.check(reserve=10)
@@ -89,7 +97,7 @@ def generate(directory, binary, eval_dir, old_datasets, config, max_seconds=1800
                                              'repetitions': game.board.transpositions[game.board.zobrist_hash()]})
                     # Seeded diversity remains separate from the teacher label.
                     choices = [m for m in game.board.legal_moves]
-                    if ply < 12 or rng.random() < .08:
+                    if ply < 12+len(config.get('opening_prefix', [])) or rng.random() < .08:
                         move = rng.choice(choices)
                     else:
                         move = query['move']
@@ -163,6 +171,8 @@ def main():
     parser.add_argument('--min-split-rows', type=int, default=100)
     parser.add_argument('--max-wall-seconds', type=float, default=1800)
     parser.add_argument('--seed', type=int, default=20261104)
+    parser.add_argument('--seed-namespace')
+    parser.add_argument('--tournament-opening',action='store_true')
     args = parser.parse_args()
     if not (20 <= args.games <= 1024 and 32 <= args.max_plies <= 256 and
             1 <= args.samples_per_game <= min(32, args.max_plies - 16) and
@@ -170,6 +180,10 @@ def main():
         raise ValueError('Data generation settings exceed bounded CPU experiment limits')
     config = {key: getattr(args, key) for key in ('games', 'samples_per_game', 'max_plies', 'teacher_nodes',
                                                 'trajectory_nodes', 'min_split_rows', 'seed')}
+    if args.seed_namespace:config['seed_namespace']=args.seed_namespace
+    if args.tournament_opening:
+        from .tournament import OPENING
+        config['opening_prefix']=list(OPENING)
     _, report = generate(args.run_dir, args.teacher_binary, args.eval_dir, args.old_data, config, args.max_wall_seconds)
     print(json.dumps(report, ensure_ascii=False), flush=True)
 

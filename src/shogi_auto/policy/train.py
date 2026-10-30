@@ -12,6 +12,17 @@ from .features import ACTIONS, PLANES
 from .network import build_network, export_network, weights_digest
 
 
+def legal_policy_loss(logits, labels, legal, smoothing=0):
+    """Smooth over legal actions only, never over masked illegal classes."""
+    import torch
+    masked = logits.masked_fill(~legal, -1e9)
+    hard = torch.nn.functional.cross_entropy(masked, labels)
+    if not smoothing:return hard
+    logs = torch.log_softmax(masked, dim=1)
+    uniform = -(logs.masked_fill(~legal, 0).sum(1) / legal.sum(1)).mean()
+    return (1-smoothing)*hard+smoothing*uniform
+
+
 def read_data(directory):
     import numpy as np
     directory = Path(directory)
@@ -43,7 +54,9 @@ def read_data(directory):
 
 
 def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
-          max_seconds=3300, seed=314160, learning_rate=.001, functional_only=False):
+          max_seconds=3300, seed=314160, learning_rate=.001, functional_only=False,
+          initial_model=None, weight_decay=.01, label_smoothing=0, value_weight=1,
+          patience=None, min_epochs=6, defer_test=False):
     os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
     import numpy as np
     import torch
@@ -60,10 +73,15 @@ def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
     torch.set_num_threads(1);torch.manual_seed(seed)
     if device == 'cuda':torch.cuda.manual_seed_all(seed)
     torch.use_deterministic_algorithms(True)
-    model = build_network().to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=.01)
+    from .network import load_network
+    model = load_network(initial_model, device=device) if initial_model else build_network().to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     settings = {'epochs': epochs, 'batch_size': batch_size, 'seed': seed, 'learning_rate': learning_rate,
-                'weight_decay': .01, 'functional_only': functional_only, 'architecture': 'pv43-c32-r2',
+                'weight_decay': weight_decay, 'functional_only': functional_only, 'architecture': 'pv43-c32-r2',
+                'warm_start_file_sha256': sha256(initial_model) if initial_model else None,
+                'warm_start_weights_sha256': weights_digest(model) if initial_model else None,
+                'label_smoothing':label_smoothing,'value_weight':value_weight,
+                'patience':patience,'min_epochs':min_epochs,'defer_test':defer_test,
                 'data_sha256': manifest['npz_sha256'], 'source': source_identity()}
     settings_path = directory / 'training-settings.json'
     if settings_path.exists() and json.loads(settings_path.read_text()) != settings:
@@ -128,7 +146,7 @@ def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
                     'epoch': epoch, 'best_epoch': best_epoch, 'best_val': best_val, 'logs': logs,
                     'initial_metrics': initial_metrics, 'cuda_steps': cuda_steps}, temporary)
         temporary.replace(checkpoint);budget.save()
-    status = 'trained'
+    status, stop_reason = 'trained', 'epoch_limit'
     try:
         for epoch in range(start, epochs):
             budget.check(reserve=30)
@@ -141,8 +159,10 @@ def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
                     raise BudgetExpired('Stopped before next batch; resume from last completed epoch')
                 ids = torch.as_tensor(order[offset:offset+batch_size], device=device)
                 optimizer.zero_grad(set_to_none=True)
-                ce, mse, _ = losses(ids)
-                (ce+mse).backward();torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
+                policy, value = model(tensors['x'][ids])
+                ce = legal_policy_loss(policy,tensors['policy'][ids],tensors['legal'][ids],label_smoothing)
+                mse = torch.nn.functional.mse_loss(value,tensors['value'][ids])
+                (ce+value_weight*mse).backward();torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
                 optimizer.step();launch_steps += 1
                 if device == 'cuda':
                     torch.cuda.synchronize()
@@ -155,18 +175,21 @@ def train(directory, data_directory, *, device='cpu', epochs=80, batch_size=128,
                 export_network(best, model, {**metadata, 'epoch': epoch})
             save(epoch)
             print(f'policy train: epoch {epoch}, validation joint={best_val:.6f}', flush=True)
+            if patience is not None and epoch+1 >= min_epochs and epoch-best_epoch >= patience:
+                stop_reason='validation_early_stopping';break
     except BudgetExpired:
-        status = 'paused'
+        status,stop_reason = 'paused','wall_time_or_signal'
     finally:
         signal.signal(signal.SIGTERM, old);budget.save()
     from .network import load_network
     model = load_network(best, device=device)
     selected = {'train': measure('train'), 'validation': measure('validation')}
     # Test is inspected only for the final selected model after the run completes.
-    if status == 'trained':selected['test'] = measure('test')
+    if status == 'trained' and not defer_test:selected['test'] = measure('test')
     report = {**metadata, 'status': status, 'counts': counts, 'initial_metrics': initial_metrics,
               'selected_metrics': selected, 'best_epoch': best_epoch, 'logs': logs,
               'completed_epochs': len(logs), 'optimizer_steps_this_launch': launch_steps,
+              'stop_reason':stop_reason,'test_evaluation_deferred':defer_test,
               'cuda_optimizer_steps_total': cuda_steps,
               'gpu_training_verified': device == 'cuda' and launch_steps > 0,
               'strength_improvement_verified': False, 'functional_only': functional_only,
@@ -190,12 +213,28 @@ def main():
     parser.add_argument('--batch-size', type=int, default=128)
     parser.add_argument('--max-wall-seconds', type=float, default=3300)
     parser.add_argument('--functional-only', action='store_true')
+    parser.add_argument('--initial-model',type=Path)
+    parser.add_argument('--learning-rate',type=float,default=.001)
+    parser.add_argument('--weight-decay',type=float,default=.01)
+    parser.add_argument('--label-smoothing',type=float,default=0)
+    parser.add_argument('--value-weight',type=float,default=1)
+    parser.add_argument('--patience',type=int)
+    parser.add_argument('--min-epochs',type=int,default=6)
+    parser.add_argument('--defer-test',action='store_true')
     args = parser.parse_args()
     if not (1 <= args.epochs <= 100 and 1 <= args.batch_size <= 256 and 30 <= args.max_wall_seconds <= 3300):
         raise ValueError('Training limits exceed the bounded first policy experiment')
+    if not (0 < args.learning_rate <= .01 and 0 <= args.weight_decay <= .1 and
+            0 <= args.label_smoothing <= .2 and .1 <= args.value_weight <= 5 and
+            (args.patience is None or 1 <= args.patience <= 20) and 1 <= args.min_epochs <= 100 and
+            (args.patience is None or args.min_epochs <= args.epochs)):
+        raise ValueError('Invalid regularization/early-stopping settings')
     print(json.dumps(train(args.run_dir, args.data_dir, device=args.device, epochs=args.epochs,
                            batch_size=args.batch_size, max_seconds=args.max_wall_seconds,
-                           functional_only=args.functional_only), ensure_ascii=False), flush=True)
+                           functional_only=args.functional_only,initial_model=args.initial_model,
+                           learning_rate=args.learning_rate,weight_decay=args.weight_decay,
+                           label_smoothing=args.label_smoothing,value_weight=args.value_weight,
+                           patience=args.patience,min_epochs=args.min_epochs,defer_test=args.defer_test), ensure_ascii=False), flush=True)
 
 
 if __name__ == '__main__':main()

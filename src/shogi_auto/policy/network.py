@@ -1,4 +1,4 @@
-"""Small policy/value CNN, initialized from scratch, safe JSON inference files."""
+"""Small policy/value CNN with safe JSON files, including our own warm starts."""
 import json
 import hashlib
 from pathlib import Path
