@@ -41,6 +41,10 @@ def prepare(fresh_dir, replay_dir, model_path, destination, round_id):
             'rules':{'url':RULES_URL,'sha256':RULES_SHA256,'teacher_use':'before tournament only; no external parameter transfer'},
             'test_evaluation':'deferred; not used for this round checkpoint selection or next-round planning',
             'split_policy':'fresh game groups; prior TRAIN rows only; globally deduplicated canonical states required'}
+    result['fresh_corpus_sha256']=result.pop('corpus_sha256')
+    result['fresh_sampling_counts']=result.pop('sampling_counts')
+    result['fresh_games']=result.pop('games')
+    result['distinct_game_groups']=len(set(arrays['game_id'].tolist()))
     write_json(destination/'data-manifest.json',result)
     # Re-use the production validator to reject split leakage and mirrored rows.
     read_data(destination)
