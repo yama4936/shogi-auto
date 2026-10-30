@@ -221,6 +221,7 @@ def main():
     parser.add_argument('--patience',type=int)
     parser.add_argument('--min-epochs',type=int,default=6)
     parser.add_argument('--defer-test',action='store_true')
+    parser.add_argument('--seed',type=int,default=314160)
     args = parser.parse_args()
     if not (1 <= args.epochs <= 100 and 1 <= args.batch_size <= 256 and 30 <= args.max_wall_seconds <= 3300):
         raise ValueError('Training limits exceed the bounded first policy experiment')
@@ -231,7 +232,7 @@ def main():
         raise ValueError('Invalid regularization/early-stopping settings')
     print(json.dumps(train(args.run_dir, args.data_dir, device=args.device, epochs=args.epochs,
                            batch_size=args.batch_size, max_seconds=args.max_wall_seconds,
-                           functional_only=args.functional_only,initial_model=args.initial_model,
+                           functional_only=args.functional_only,initial_model=args.initial_model,seed=args.seed,
                            learning_rate=args.learning_rate,weight_decay=args.weight_decay,
                            label_smoothing=args.label_smoothing,value_weight=args.value_weight,
                            patience=args.patience,min_epochs=args.min_epochs,defer_test=args.defer_test), ensure_ascii=False), flush=True)
