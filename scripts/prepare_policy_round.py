@@ -11,7 +11,7 @@ import numpy as np
 from shogi_auto.policy.common import sha256,source_identity,write_json
 from shogi_auto.policy.network import load_network,weights_digest
 from shogi_auto.policy.train import read_data
-from shogi_auto.policy.tournament import RULES_URL,RULES_SHA256
+from shogi_auto.policy.tournament import OPENING,RULES_URL,RULES_SHA256
 
 
 def prepare(fresh_dir, replay_dir, model_path, destination, round_id):
@@ -19,6 +19,8 @@ def prepare(fresh_dir, replay_dir, model_path, destination, round_id):
     destination=Path(destination)
     if destination.exists():raise ValueError('Use a new immutable round input directory')
     fresh,manifest=read_data(fresh_dir);replay,prior=read_data(replay_dir)
+    if not manifest['config'].get('seed_namespace') or manifest['config'].get('opening_prefix')!=list(OPENING):
+        raise ValueError('Fresh round data needs an independent seed namespace and the required opening')
     keep=replay['split']=='train'
     arrays={k:np.concatenate([fresh[k],replay[k][keep]]) for k in fresh}
     # IDs are provenance groups, not array offsets; keep the prior training games
@@ -28,6 +30,7 @@ def prepare(fresh_dir, replay_dir, model_path, destination, round_id):
     np.savez_compressed(destination/'data.npz',**arrays)
     counts={s:int((arrays['split']==s).sum()) for s in ('train','validation','test')}
     origin=source_identity()
+    if origin['dirty']:raise ValueError('Pin the preparation code before assembling production input')
     model=load_network(model_path)
     result={**manifest,'source':origin,'generation_source':manifest['source'],
             'round_id':round_id,'created_at':datetime.now(timezone.utc).isoformat(),
