@@ -22,3 +22,18 @@ runs/
 *.pth
 *.ckpt
 *.onnx
+
+# External research artifacts and private operational state
+artifacts/
+raw-logs/
+*.jsonl
+*.npz
+*.npy
+*.safetensors
+*.csa
+*.kif
+*.kifu
+*.zip
+known_hosts
+authorized_keys
+id_ed25519*
